@@ -48,19 +48,33 @@ const walk = (adapters: VariableAdapters, variables: Array<VariableModel & Varia
   };
 
   const values = Object.values(nodes);
-  const leafs = values.filter(n => n.children.length === 0);
+  const leaves: VariableTreeNode[] = [];
+  values.forEach(node => findLeaves(node, leaves));
 
-  for (const leaf of leafs) {
+  for (const leaf of leaves) {
     findParents(leaf, values, tree);
   }
 
   return tree;
 };
 
+const findLeaves = (leaf: VariableTreeNode, leaves: VariableTreeNode[]): VariableTreeNode[] => {
+  if (leaf.children.length === 0 && !leaves.find(l => l.variable.name === leaf.variable.name)) {
+    leaves.push(leaf);
+    return leaves;
+  }
+
+  let newLeaves: VariableTreeNode[] = [];
+  for (const child of leaf.children) {
+    newLeaves = newLeaves.concat(findLeaves(child, leaves));
+  }
+  return newLeaves;
+};
+
 function findParents(leaf: VariableTreeNode, nodes: VariableTreeNode[], tree: VariableTreeNode) {
   const parents = nodes.filter(n => !!n.children.find(c => c.variable.name === leaf.variable.name));
 
-  if (parents.length === 0) {
+  if (parents.length === 0 && !tree.children.find(c => c.variable.name === leaf.variable.name)) {
     tree.children.push(leaf);
     return;
   }
