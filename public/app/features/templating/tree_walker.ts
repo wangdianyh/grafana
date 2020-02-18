@@ -6,15 +6,15 @@ export const treeWalkerFactory = (adapters?: VariableAdapters) => {
   return (variables: Array<VariableModel & VariableActions>) => walk(adapters ?? variableAdapters, variables);
 };
 
-type Node = {
-  name: string;
-  children: Node[];
+type VariableTreeNode = {
+  variable?: VariableModel & VariableActions;
+  children: VariableTreeNode[];
 };
 
-const walk = (adapters: VariableAdapters, variables: Array<VariableModel & VariableActions>): Node => {
-  const nodes: Record<string, Node> = variables.reduce((all: Record<string, Node>, current) => {
+const walk = (adapters: VariableAdapters, variables: Array<VariableModel & VariableActions>): VariableTreeNode => {
+  const nodes: Record<string, VariableTreeNode> = variables.reduce((all: Record<string, VariableTreeNode>, current) => {
     all[current.name] = {
-      name: current.name,
+      variable: current,
       children: [],
     };
     return all;
@@ -31,8 +31,8 @@ const walk = (adapters: VariableAdapters, variables: Array<VariableModel & Varia
           const n1 = nodes[v1.name];
           const n2 = nodes[v2.name];
           n2.children.push(n1);
-          continue;
         }
+        continue;
       }
 
       if (v1.dependsOn(v2)) {
@@ -43,8 +43,7 @@ const walk = (adapters: VariableAdapters, variables: Array<VariableModel & Varia
     }
   }
 
-  const tree: Node = {
-    name: 'root',
+  const tree: VariableTreeNode = {
     children: [],
   };
 
@@ -58,8 +57,8 @@ const walk = (adapters: VariableAdapters, variables: Array<VariableModel & Varia
   return tree;
 };
 
-function findParents(leaf: Node, nodes: Node[], tree: Node) {
-  const parents = nodes.filter(n => !!n.children.find(c => c.name === leaf.name));
+function findParents(leaf: VariableTreeNode, nodes: VariableTreeNode[], tree: VariableTreeNode) {
+  const parents = nodes.filter(n => !!n.children.find(c => c.variable.name === leaf.variable.name));
 
   if (parents.length === 0) {
     tree.children.push(leaf);

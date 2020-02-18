@@ -1,8 +1,19 @@
-import { VariableType, VariableModel, VariableActions } from './variable';
+import { QueryVariableModel, VariableActions, VariableModel, VariableType } from './variable';
 import { treeWalkerFactory } from './tree_walker';
+import { VariableAdapter, VariableAdapters } from './adapters/types';
 
 describe('TreeWalker', () => {
-  const walking = treeWalkerFactory();
+  const queryVariableAdapter: VariableAdapter<QueryVariableModel> = {
+    dependsOn: (variable, variableToTest) => {
+      return false;
+    },
+  } as VariableAdapter<QueryVariableModel>;
+  const adapters: VariableAdapters = {
+    get: type => queryVariableAdapter,
+    set: type => undefined,
+    contains: type => type === 'query',
+  };
+  const walking = treeWalkerFactory(adapters);
 
   describe('when walking tree', () => {
     // lista med variables ifrån redux + angularjs
@@ -10,8 +21,10 @@ describe('TreeWalker', () => {
     const custom1 = createAngularVariable('custom1', 'custom', (variable: any) => variable.name === query1.name);
 
     it('should return variables in dependency order', () => {
-      const tree = walking([query1, custom1]);
-      expect(tree).toEqual([]);
+      const tree = walking([custom1, query1]);
+      expect(tree).toEqual({
+        children: [{ variable: query1, children: [{ variable: custom1, children: [] }] }],
+      });
     });
   });
 });
