@@ -2,10 +2,10 @@ import { containsVariable, QueryVariableModel, VariableRefresh } from '../variab
 import { ALL_VARIABLE_TEXT, initialQueryVariableState, queryVariableReducer } from '../state/queryVariableReducer';
 import { dispatch } from '../../../store/store';
 import { setOptionAsCurrent, setOptionFromUrl } from '../state/actions';
-import { VariableAdapter } from './index';
 import { QueryVariablePicker } from '../picker/QueryVariablePicker';
 import { QueryVariableEditor } from '../editor/QueryVariableEditor';
 import { updateQueryVariableOptions } from '../state/queryVariableActions';
+import { VariableAdapter } from './types';
 
 export const createQueryVariableAdapter = (): VariableAdapter<QueryVariableModel> => {
   return {

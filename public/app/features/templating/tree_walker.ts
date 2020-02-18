@@ -1,5 +1,6 @@
-import { variableAdapters, VariableAdapters } from './adapters';
-import { VariableModel, VariableActions } from './variable';
+import { variableAdapters } from './adapters';
+import { VariableActions, VariableModel } from './variable';
+import { VariableAdapters } from './adapters/types';
 
 export const treeWalkerFactory = (adapters?: VariableAdapters) => {
   return (variables: Array<VariableModel & VariableActions>) => walk(adapters ?? variableAdapters, variables);

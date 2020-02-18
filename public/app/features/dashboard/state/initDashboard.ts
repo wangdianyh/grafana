@@ -23,6 +23,8 @@ import { DashboardDTO, DashboardRouteInfo, StoreState, ThunkDispatch, ThunkResul
 import { DashboardModel } from './DashboardModel';
 import { DataQuery } from '@grafana/data';
 import { initDashboardTemplating, processVariables } from '../../templating/state/actions';
+import { createQueryVariableAdapter } from '../../templating/adapters/queryVariableAdapter';
+import { variableAdapters } from '../../templating/adapters';
 
 export interface InitDashboardArgs {
   $injector: any;
@@ -179,6 +181,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
     // template values service needs to initialize completely before
     // the rest of the dashboard can load
     try {
+      variableAdapters.set('query', createQueryVariableAdapter());
       await dispatch(initDashboardTemplating(dashboard.templating.list));
       await dispatch(processVariables());
       await variableSrv.init(dashboard);

@@ -1,25 +1,5 @@
-import { ComponentType } from 'react';
-import { Reducer } from 'redux';
-import { UrlQueryValue } from '@grafana/runtime';
-
-import { VariableModel, VariableOption, VariableType } from '../variable';
-import { createQueryVariableAdapter } from './queryVariableAdapter';
-import { VariableEditorProps, VariablePickerProps, VariableState } from '../state/types';
-import { TemplatingState } from '../state';
-
-export interface VariableAdapter<Model extends VariableModel> {
-  description: string;
-  initialState: VariableState;
-  dependsOn: (variable: Model, variableToTest: Model) => boolean;
-  setValue: (variable: Model, option: VariableOption) => Promise<void>;
-  setValueFromUrl: (variable: Model, urlValue: UrlQueryValue) => Promise<void>;
-  updateOptions: (variable: Model, searchFilter?: string, notifyAngular?: boolean) => Promise<void>;
-  getSaveModel: (variable: Model) => Partial<Model>;
-  getValueForUrl: (variable: Model) => string | string[];
-  picker: ComponentType<VariablePickerProps>;
-  editor: ComponentType<VariableEditorProps>;
-  reducer: Reducer<TemplatingState>;
-}
+import { VariableType } from '../variable';
+import { VariableAdapter, VariableAdapters } from './types';
 
 const allVariableAdapters: Record<VariableType, VariableAdapter<any> | null> = {
   query: null,
@@ -30,12 +10,6 @@ const allVariableAdapters: Record<VariableType, VariableAdapter<any> | null> = {
   interval: null,
   adhoc: null,
 };
-
-export interface VariableAdapters {
-  contains: (type: VariableType) => boolean;
-  get: (type: VariableType) => VariableAdapter<any>;
-  set: (type: VariableType, adapter: VariableAdapter<any>) => void;
-}
 
 export const variableAdapters: VariableAdapters = {
   contains: (type: VariableType): boolean => !!allVariableAdapters[type],
@@ -54,5 +28,3 @@ export const variableAdapters: VariableAdapters = {
     allVariableAdapters[type] = adapter;
   },
 };
-
-variableAdapters.set('query', createQueryVariableAdapter());
