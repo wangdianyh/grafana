@@ -1,23 +1,11 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import _ from 'lodash';
-
-import { TemplateSrv } from 'app/features/templating/template_srv';
-
+import events from 'app/core/app_events';
+import { TimeSeries, SelectableValue, ExploreQueryFieldProps, PanelEvents } from '@grafana/data';
 import { Aggregations, Metrics, Filters, GroupBys, Alignments, AlignmentPeriods, AliasBy, Help } from './';
 import { StackdriverQuery, MetricDescriptor } from '../types';
 import { getAlignmentPickerData, toOption } from '../functions';
 import StackdriverDatasource from '../datasource';
-import { TimeSeries, SelectableValue } from '@grafana/data';
-import { PanelEvents } from '@grafana/data';
-
-export interface Props {
-  onQueryChange: (target: StackdriverQuery) => void;
-  onExecuteQuery: () => void;
-  target: StackdriverQuery;
-  events: any;
-  datasource: StackdriverDatasource;
-  templateSrv: TemplateSrv;
-}
 
 interface State extends StackdriverQuery {
   variableOptions: Array<SelectableValue<string>>;
@@ -28,6 +16,8 @@ interface State extends StackdriverQuery {
   labels: any;
   [key: string]: any;
 }
+
+export type Props = ExploreQueryFieldProps<StackdriverDatasource, StackdriverQuery>;
 
 export const DefaultTarget: State = {
   defaultProject: 'loading project...',
@@ -53,37 +43,37 @@ export const DefaultTarget: State = {
   variableOptions: [],
 };
 
-export class QueryEditor extends React.Component<Props, State> {
+export class QueryEditor extends PureComponent<Props, State> {
   state: State = DefaultTarget;
 
   async componentDidMount() {
-    const { events, target, templateSrv, datasource } = this.props;
+    const { query, datasource } = this.props;
     events.on(PanelEvents.dataReceived, this.onDataReceived.bind(this));
     events.on(PanelEvents.dataError, this.onDataError.bind(this));
-    const { perSeriesAligner, alignOptions } = getAlignmentPickerData(target, templateSrv);
+    const { perSeriesAligner, alignOptions } = getAlignmentPickerData(query, datasource.templateSrv);
     const variableOptionGroup = {
       label: 'Template Variables',
       expanded: false,
       options: datasource.variables.map(toOption),
     };
     this.setState({
-      ...this.props.target,
+      ...this.props.query,
       alignOptions,
       perSeriesAligner,
       variableOptionGroup,
       variableOptions: variableOptionGroup.options,
     });
 
-    datasource.getLabels(target.metricType, target.refId, target.groupBys).then(labels => this.setState({ labels }));
+    datasource.getLabels(query.metricType, query.refId, query.groupBys).then(labels => this.setState({ labels }));
   }
 
   componentWillUnmount() {
-    this.props.events.off(PanelEvents.dataReceived, this.onDataReceived);
-    this.props.events.off(PanelEvents.dataError, this.onDataError);
+    events.off(PanelEvents.dataReceived, this.onDataReceived);
+    events.off(PanelEvents.dataError, this.onDataError);
   }
 
   onDataReceived(dataList: TimeSeries[]) {
-    const series = dataList.find((item: any) => item.refId === this.props.target.refId);
+    const series = dataList.find((item: any) => item.refId === this.props.query.refId);
     if (series) {
       this.setState({
         lastQuery: decodeURIComponent(series.meta.rawQuery),
@@ -99,7 +89,7 @@ export class QueryEditor extends React.Component<Props, State> {
     if (err.data && err.data.error) {
       lastQueryError = this.props.datasource.formatStackdriverError(err);
     } else if (err.data && err.data.results) {
-      const queryRes = err.data.results[this.props.target.refId];
+      const queryRes = err.data.results[this.props.query.refId];
       lastQuery = decodeURIComponent(queryRes.meta.rawQuery);
       if (queryRes && queryRes.error) {
         try {
@@ -113,12 +103,12 @@ export class QueryEditor extends React.Component<Props, State> {
   }
 
   onMetricTypeChange = async ({ valueType, metricKind, type, unit }: MetricDescriptor) => {
-    const { templateSrv, onQueryChange, onExecuteQuery, target } = this.props;
+    const { onChange, onRunQuery, query, datasource } = this.props;
     const { perSeriesAligner, alignOptions } = getAlignmentPickerData(
       { valueType, metricKind, perSeriesAligner: this.state.perSeriesAligner },
-      templateSrv
+      datasource.templateSrv
     );
-    const labels = await this.props.datasource.getLabels(type, target.refId, target.groupBys);
+    const labels = await this.props.datasource.getLabels(type, query.refId, query.groupBys);
     this.setState(
       {
         alignOptions,
@@ -130,25 +120,25 @@ export class QueryEditor extends React.Component<Props, State> {
         labels,
       },
       () => {
-        onQueryChange(this.state);
-        onExecuteQuery();
+        onChange(this.state);
+        onRunQuery();
       }
     );
   };
 
   onGroupBysChange(value: string[]) {
-    const { target, datasource } = this.props;
+    const { query, datasource } = this.props;
     this.setState({ groupBys: value }, () => {
-      this.props.onQueryChange(this.state);
-      this.props.onExecuteQuery();
+      this.props.onChange(this.state);
+      this.props.onRunQuery();
     });
-    datasource.getLabels(target.metricType, target.refId, value).then(labels => this.setState({ labels }));
+    datasource.getLabels(query.metricType, query.refId, value).then(labels => this.setState({ labels }));
   }
 
   onPropertyChange(prop: string, value: string[]) {
     this.setState({ [prop]: value }, () => {
-      this.props.onQueryChange(this.state);
-      this.props.onExecuteQuery();
+      this.props.onChange(this.state);
+      this.props.onRunQuery();
     });
   }
 
@@ -170,12 +160,12 @@ export class QueryEditor extends React.Component<Props, State> {
       variableOptionGroup,
       variableOptions,
     } = this.state;
-    const { datasource, templateSrv } = this.props;
+    const { datasource } = this.props;
 
     return (
       <>
         <Metrics
-          templateSrv={templateSrv}
+          templateSrv={datasource.templateSrv}
           defaultProject={defaultProject}
           metricType={metricType}
           templateVariableOptions={variableOptions}
@@ -215,7 +205,7 @@ export class QueryEditor extends React.Component<Props, State> {
                 }
               </Aggregations>
               <AlignmentPeriods
-                templateSrv={templateSrv}
+                templateSrv={datasource.templateSrv}
                 templateVariableOptions={variableOptions}
                 alignmentPeriod={alignmentPeriod}
                 perSeriesAligner={perSeriesAligner}
