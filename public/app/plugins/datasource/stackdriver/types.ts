@@ -23,6 +23,8 @@ export interface VariableQueryData {
 }
 
 export interface StackdriverQuery extends DataQuery {
+  logsQuery: string;
+  queryType: string;
   defaultProject?: string;
   unit?: string;
   metricType: string;

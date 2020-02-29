@@ -1,8 +1,19 @@
 import React, { PureComponent } from 'react';
 import _ from 'lodash';
 import events from 'app/core/app_events';
+import { Segment } from '@grafana/ui';
 import { TimeSeries, SelectableValue, ExploreQueryFieldProps, PanelEvents } from '@grafana/data';
-import { Aggregations, Metrics, Filters, GroupBys, Alignments, AlignmentPeriods, AliasBy, Help } from './';
+import {
+  Aggregations,
+  Metrics,
+  Filters,
+  GroupBys,
+  Alignments,
+  AlignmentPeriods,
+  AliasBy,
+  Help,
+  LogsQueryField,
+} from './';
 import { StackdriverQuery, MetricDescriptor } from '../types';
 import { getAlignmentPickerData, toOption } from '../functions';
 import StackdriverDatasource from '../datasource';
@@ -20,6 +31,8 @@ interface State extends StackdriverQuery {
 export type Props = ExploreQueryFieldProps<StackdriverDatasource, StackdriverQuery>;
 
 export const DefaultTarget: State = {
+  queryType: 'Metrics',
+  logsQuery: '',
   defaultProject: 'loading project...',
   metricType: '',
   metricKind: '',
@@ -135,7 +148,7 @@ export class QueryEditor extends PureComponent<Props, State> {
     datasource.getLabels(query.metricType, query.refId, value).then(labels => this.setState({ labels }));
   }
 
-  onPropertyChange(prop: string, value: string[]) {
+  onPropertyChange(prop: string, value: any) {
     this.setState({ [prop]: value }, () => {
       this.props.onChange(this.state);
       this.props.onRunQuery();
@@ -144,6 +157,8 @@ export class QueryEditor extends PureComponent<Props, State> {
 
   render() {
     const {
+      queryType,
+      logsQuery,
       usedAlignmentPeriod,
       defaultProject,
       metricType,
@@ -160,63 +175,78 @@ export class QueryEditor extends PureComponent<Props, State> {
       variableOptionGroup,
       variableOptions,
     } = this.state;
-    const { datasource } = this.props;
+    const { datasource, onRunQuery, onChange } = this.props;
 
     return (
       <>
-        <Metrics
-          templateSrv={datasource.templateSrv}
-          defaultProject={defaultProject}
-          metricType={metricType}
-          templateVariableOptions={variableOptions}
-          datasource={datasource}
-          onChange={this.onMetricTypeChange}
-        >
-          {metric => (
-            <>
-              <Filters
-                labels={labels}
-                filters={filters}
-                onChange={value => this.onPropertyChange('filters', value)}
-                variableOptionGroup={variableOptionGroup}
-              />
-              <GroupBys
-                groupBys={Object.keys(labels)}
-                values={groupBys}
-                onChange={this.onGroupBysChange.bind(this)}
-                variableOptionGroup={variableOptionGroup}
-              />
-              <Aggregations
-                metricDescriptor={metric}
-                templateVariableOptions={variableOptions}
-                crossSeriesReducer={crossSeriesReducer}
-                groupBys={groupBys}
-                onChange={value => this.onPropertyChange('crossSeriesReducer', value)}
-              >
-                {displayAdvancedOptions =>
-                  displayAdvancedOptions && (
-                    <Alignments
-                      alignOptions={alignOptions}
-                      templateVariableOptions={variableOptions}
-                      perSeriesAligner={perSeriesAligner}
-                      onChange={value => this.onPropertyChange('perSeriesAligner', value)}
-                    />
-                  )
-                }
-              </Aggregations>
-              <AlignmentPeriods
-                templateSrv={datasource.templateSrv}
-                templateVariableOptions={variableOptions}
-                alignmentPeriod={alignmentPeriod}
-                perSeriesAligner={perSeriesAligner}
-                usedAlignmentPeriod={usedAlignmentPeriod}
-                onChange={value => this.onPropertyChange('alignmentPeriod', value)}
-              />
-              <AliasBy value={aliasBy} onChange={value => this.onPropertyChange('aliasBy', value)} />
-              <Help datasource={datasource} rawQuery={lastQuery} lastQueryError={lastQueryError} />
-            </>
-          )}
-        </Metrics>
+        <div className="gf-form-inline">
+          <span className="gf-form-label width-9 query-keyword">Query Type</span>
+          <Segment
+            onChange={({ value }) => this.onPropertyChange('queryType', value)}
+            value={queryType}
+            options={['metrics', 'logs'].map(value => ({ label: value, value }))}
+          ></Segment>
+          <div className="gf-form gf-form--grow">
+            <div className="gf-form-label gf-form-label--grow" />
+          </div>
+        </div>
+        {queryType === 'metrics' ? (
+          <Metrics
+            templateSrv={datasource.templateSrv}
+            defaultProject={defaultProject}
+            metricType={metricType}
+            templateVariableOptions={variableOptions}
+            datasource={datasource}
+            onChange={this.onMetricTypeChange}
+          >
+            {metric => (
+              <>
+                <Filters
+                  labels={labels}
+                  filters={filters}
+                  onChange={value => this.onPropertyChange('filters', value)}
+                  variableOptionGroup={variableOptionGroup}
+                />
+                <GroupBys
+                  groupBys={Object.keys(labels)}
+                  values={groupBys}
+                  onChange={this.onGroupBysChange.bind(this)}
+                  variableOptionGroup={variableOptionGroup}
+                />
+                <Aggregations
+                  metricDescriptor={metric}
+                  templateVariableOptions={variableOptions}
+                  crossSeriesReducer={crossSeriesReducer}
+                  groupBys={groupBys}
+                  onChange={value => this.onPropertyChange('crossSeriesReducer', value)}
+                >
+                  {displayAdvancedOptions =>
+                    displayAdvancedOptions && (
+                      <Alignments
+                        alignOptions={alignOptions}
+                        templateVariableOptions={variableOptions}
+                        perSeriesAligner={perSeriesAligner}
+                        onChange={value => this.onPropertyChange('perSeriesAligner', value)}
+                      />
+                    )
+                  }
+                </Aggregations>
+                <AlignmentPeriods
+                  templateSrv={datasource.templateSrv}
+                  templateVariableOptions={variableOptions}
+                  alignmentPeriod={alignmentPeriod}
+                  perSeriesAligner={perSeriesAligner}
+                  usedAlignmentPeriod={usedAlignmentPeriod}
+                  onChange={value => this.onPropertyChange('alignmentPeriod', value)}
+                />
+                <AliasBy value={aliasBy} onChange={value => this.onPropertyChange('aliasBy', value)} />
+                <Help datasource={datasource} rawQuery={lastQuery} lastQueryError={lastQueryError} />
+              </>
+            )}
+          </Metrics>
+        ) : (
+          <LogsQueryField value={logsQuery} onChange={logsQuery => onChange({ ...this.state, logsQuery })} />
+        )}
       </>
     );
   }

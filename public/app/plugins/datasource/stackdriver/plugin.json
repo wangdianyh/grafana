@@ -3,7 +3,7 @@
   "type": "datasource",
   "id": "stackdriver",
   "category": "cloud",
-
+  "logs": true,
   "metrics": true,
   "alerting": true,
   "annotations": true,
@@ -31,6 +31,19 @@
       "url": "https://content-monitoring.googleapis.com",
       "jwtTokenAuth": {
         "scopes": ["https://www.googleapis.com/auth/monitoring.read"],
+        "params": {
+          "token_uri": "{{.JsonData.tokenUri}}",
+          "client_email": "{{.JsonData.clientEmail}}",
+          "private_key": "{{.SecureJsonData.privateKey}}"
+        }
+      }
+    },
+    {
+      "path": "stackdriver-logging",
+      "method": "POST",
+      "url": "https://logging.googleapis.com",
+      "jwtTokenAuth": {
+        "scopes": ["https://www.googleapis.com/auth/logging.read"],
         "params": {
           "token_uri": "{{.JsonData.tokenUri}}",
           "client_email": "{{.JsonData.clientEmail}}",

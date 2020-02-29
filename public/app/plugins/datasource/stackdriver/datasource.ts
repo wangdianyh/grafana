@@ -3,7 +3,14 @@ import appEvents from 'app/core/app_events';
 import _ from 'lodash';
 import StackdriverMetricFindQuery from './StackdriverMetricFindQuery';
 import { StackdriverQuery, MetricDescriptor, StackdriverOptions, Filter } from './types';
-import { DataSourceApi, DataQueryRequest, DataSourceInstanceSettings, ScopedVars } from '@grafana/data';
+import {
+  FieldType,
+  DataSourceApi,
+  DataQueryRequest,
+  DataSourceInstanceSettings,
+  ScopedVars,
+  ArrayVector,
+} from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { TemplateSrv } from 'app/features/templating/template_srv';
 import { TimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -135,30 +142,34 @@ export default class StackdriverDatasource extends DataSourceApi<StackdriverQuer
   }
 
   async query(options: DataQueryRequest<StackdriverQuery>) {
-    const result: any[] = [];
-    const data = await this.getTimeSeries(options);
-    if (data.results) {
-      Object['values'](data.results).forEach((queryRes: any) => {
-        if (!queryRes.series) {
-          return;
-        }
-        const unit = this.resolvePanelUnitFromTargets(options.targets);
-        queryRes.series.forEach((series: any) => {
-          let timeSerie: any = {
-            target: series.name,
-            datapoints: series.points,
-            refId: queryRes.refId,
-            meta: queryRes.meta,
-          };
-          if (unit) {
-            timeSerie = { ...timeSerie, unit };
-          }
-          result.push(timeSerie);
-        });
-      });
-      return { data: result };
+    if (options.targets[0].queryType === 'logs') {
+      return this.getLogs(options.targets[0].logsQuery);
     } else {
-      return { data: [] };
+      const result: any[] = [];
+      const data = await this.getTimeSeries(options);
+      if (data.results) {
+        Object['values'](data.results).forEach((queryRes: any) => {
+          if (!queryRes.series) {
+            return;
+          }
+          const unit = this.resolvePanelUnitFromTargets(options.targets);
+          queryRes.series.forEach((series: any) => {
+            let timeSerie: any = {
+              target: series.name,
+              datapoints: series.points,
+              refId: queryRes.refId,
+              meta: queryRes.meta,
+            };
+            if (unit) {
+              timeSerie = { ...timeSerie, unit };
+            }
+            result.push(timeSerie);
+          });
+        });
+        return { data: result };
+      } else {
+        return { data: [] };
+      }
     }
   }
 
@@ -301,6 +312,64 @@ export default class StackdriverDatasource extends DataSourceApi<StackdriverQuer
       }
 
       return this.metricTypes;
+    } catch (error) {
+      appEvents.emit(CoreEvents.dsRequestError, { error: { data: { error: this.formatStackdriverError(error) } } });
+      return [];
+    }
+  }
+
+  async getLogs(query: string) {
+    try {
+      //https://play.google.com/log?authuser=1https://logging.clients6.google.com/v2/entries:list?alt=json&key=AIzaSyCI-zsRP85UVOi0DjtiCwWBwQ1djDy741g
+      const { data } = await getBackendSrv().datasourceRequest({
+        url: this.url + `/stackdriver-logging/v2/entries:list`,
+        method: 'POST',
+        data: {
+          filter: query,
+          // 'resource.type="gce_instance"\nresource.labels.instance_id="6182112311011168237"\n\n timestamp<="2020-02-27T13:19:02.187000000Z" timestamp<"2020-02-27T13:18:52.497Z" timestamp>="2020-02-27T12:19:02.187Z" timestamp<="2020-02-27T13:19:02.187Z"',
+          orderBy: 'timestamp desc',
+          pageSize: 100,
+          resourceNames: ['projects/raintank-dev'],
+        },
+      });
+
+      const times = new ArrayVector<string>([]);
+      // const timesNs = new ArrayVector<string>([]);
+      const lines = new ArrayVector<string>([]);
+      const ids = new ArrayVector<string>([]);
+
+      for (const entry of data.entries) {
+        // iso string with nano precision, will be truncated but is parse-able
+        times.add(entry.timestamp);
+        // So this matches new format, we are loosing precision here, which sucks but no easy way to keep it and this
+        // is for old pre 1.0.0 version Loki so probably does not affect that much.
+        // timesNs.add(dateTime(ts).valueOf() + '000000');
+        lines.add(entry.textPayload);
+        ids.add(entry.insertId);
+      }
+
+      // const { lines, times, ids } = data.entries.reduce(
+      //   (acc: any, curr: any) => {
+      //     return {
+      //       lines: [...acc.lines, curr.textPayload],
+      //       times: [...acc.times, curr.timestamp],
+      //       ids: [...acc.ids, curr.insertId],
+      //     };
+      //   },
+      //   { lines: [], times: [], ids: [] }
+      // );
+
+      const dataFrame = {
+        refId: 'A',
+        fields: [
+          { name: 'ts', type: FieldType.time, config: { title: 'Time' }, values: times }, // Time
+          { name: 'line', type: FieldType.string, config: {}, values: lines }, // Line
+          { name: 'id', type: FieldType.string, config: {}, values: ids },
+          // { name: 'tsNs', type: FieldType.time, config: { title: 'Time ns' }, values: timesNs }, // Time
+        ],
+        length: times.length,
+      };
+      return { data: [dataFrame] };
     } catch (error) {
       appEvents.emit(CoreEvents.dsRequestError, { error: { data: { error: this.formatStackdriverError(error) } } });
       return [];
