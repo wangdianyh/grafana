@@ -16,8 +16,8 @@ export const getVariable = <T extends VariableModel = VariableModel>(
   return state.templating.variables[name] as T;
 };
 
-export const getVariableWithName = (name: string, state: StoreState = getState()) => {
-  return state.templating.variables[name];
+export const getVariableWithName = <T extends VariableModel = VariableModel>(name: string): T => {
+  return getState().templating.variables[name] as T;
 };
 
 export const getVariables = (state: StoreState = getState()): VariableModel[] => {
