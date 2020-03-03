@@ -1,4 +1,4 @@
-import { emptyUuid } from './types';
+import { NEW_VARIABLE_NAME } from './types';
 import { QueryVariableModel, VariableHide, VariableModel } from '../variable';
 import { initialQueryVariableModelState } from '../query/reducer';
 import { VariablesState } from './variablesReducer';
@@ -22,12 +22,12 @@ export const getVariableState = (
   }
 
   if (includeEmpty) {
-    variables[emptyUuid] = {
+    variables[NEW_VARIABLE_NAME] = {
       type: 'query',
-      name: `Name-${emptyUuid}`,
+      name: `Name-${NEW_VARIABLE_NAME}`,
       hide: VariableHide.dontHide,
       index: noOfVariables,
-      label: `Label-${emptyUuid}`,
+      label: `Label-${NEW_VARIABLE_NAME}`,
       skipUrlSync: false,
     };
   }

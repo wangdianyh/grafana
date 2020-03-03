@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { StoreState } from '../../../types';
 import { VariableModel } from '../variable';
 import { getState } from '../../../store/store';
-import { emptyUuid } from './types';
+import { NEW_VARIABLE_NAME } from './types';
 
 export const getVariable = <T extends VariableModel = VariableModel>(
   name: string,
@@ -21,12 +21,12 @@ export const getVariableWithName = (name: string, state: StoreState = getState()
 };
 
 export const getVariables = (state: StoreState = getState()): VariableModel[] => {
-  return Object.values(state.templating.variables).filter(variable => variable.name !== emptyUuid);
+  return Object.values(state.templating.variables).filter(variable => variable.name !== NEW_VARIABLE_NAME);
 };
 
 export const getVariableClones = (state: StoreState = getState(), includeEmptyUuid = false): VariableModel[] => {
   const variables = Object.values(state.templating.variables)
-    .filter(variable => (includeEmptyUuid ? true : variable.name !== emptyUuid))
+    .filter(variable => (includeEmptyUuid ? true : variable.name !== NEW_VARIABLE_NAME))
     .map(variable => cloneDeep(variable));
   return variables.sort((s1, s2) => s1.index! - s2.index!);
 };

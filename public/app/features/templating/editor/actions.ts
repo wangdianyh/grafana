@@ -9,7 +9,7 @@ import {
 import { storeNewVariable, toVariablePayload, VariableIdentifier } from '../state/actions';
 import { variableAdapters } from '../adapters';
 import { changeToEditorListMode } from '../state/inEditorReducer';
-import { emptyUuid } from '../state/types';
+import { NEW_VARIABLE_NAME } from '../state/types';
 
 export const variableEditorMount = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
@@ -33,7 +33,7 @@ export const onEditorUpdate = (identifier: VariableIdentifier): ThunkResult<void
 
 export const onEditorAdd = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const emptyVarible = getVariable(emptyUuid, getState());
+    const emptyVarible = getVariable(NEW_VARIABLE_NAME, getState());
     dispatch(storeNewVariable(toVariablePayload({ type: identifier.type, name: emptyVarible.name })));
     const variableInState = getVariable(emptyVarible.name, getState());
     await variableAdapters.get(variableInState.type).updateOptions(variableInState);

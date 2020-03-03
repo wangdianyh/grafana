@@ -1,5 +1,5 @@
 import React, { MouseEvent, PureComponent } from 'react';
-import { emptyUuid } from '../state/types';
+import { NEW_VARIABLE_NAME } from '../state/types';
 import { StoreState } from '../../../types';
 import { e2e } from '@grafana/e2e';
 import { VariableEditorList } from './VariableEditorList';
@@ -51,7 +51,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
 
   onChangeToAddMode = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.changeToEditorEditMode(toVariablePayload({ name: emptyUuid, type: 'query' }));
+    this.props.changeToEditorEditMode(toVariablePayload({ name: NEW_VARIABLE_NAME, type: 'query' }));
   };
 
   onChangeVariableOrder = (identifier: VariableIdentifier, fromIndex: number, toIndex: number) => {
@@ -78,7 +78,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
             >
               Variables
             </a>
-            {this.props.inEditor === emptyUuid && (
+            {this.props.inEditor === NEW_VARIABLE_NAME && (
               <span>
                 <i
                   className="fa fa-fw fa-chevron-right"
@@ -87,7 +87,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
                 New
               </span>
             )}
-            {this.props.inEditor && this.props.inEditor !== emptyUuid && (
+            {this.props.inEditor && this.props.inEditor !== NEW_VARIABLE_NAME && (
               <span>
                 <i
                   className="fa fa-fw fa-chevron-right"

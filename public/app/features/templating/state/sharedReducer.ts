@@ -14,7 +14,7 @@ import {
   storeNewVariable,
 } from './actions';
 import { VariableModel, VariableWithOptions } from '../variable';
-import { ALL_VARIABLE_VALUE, emptyUuid, getInstanceState } from './types';
+import { ALL_VARIABLE_VALUE, getInstanceState, NEW_VARIABLE_NAME } from './types';
 import { variableAdapters } from '../adapters';
 import { changeVariableNameSucceeded, variableEditorUnMounted } from '../editor/reducer';
 import { Deferred } from '../deferred';
@@ -51,12 +51,12 @@ export const sharedReducer = createReducer(initialVariablesState, builder =>
     .addCase(variableEditorUnMounted, (state, action) => {
       const variableState = state[action.payload.name];
 
-      if (action.payload.name === emptyUuid && !variableState) {
+      if (action.payload.name === NEW_VARIABLE_NAME && !variableState) {
         return;
       }
 
-      if (state[emptyUuid]) {
-        delete state[emptyUuid];
+      if (state[NEW_VARIABLE_NAME]) {
+        delete state[NEW_VARIABLE_NAME];
       }
     })
     .addCase(duplicateVariable, (state, action) => {
@@ -83,14 +83,14 @@ export const sharedReducer = createReducer(initialVariablesState, builder =>
     })
     .addCase(storeNewVariable, (state, action) => {
       const name = action.payload.name;
-      const emptyVariable: VariableModel = cloneDeep<VariableModel>(state[emptyUuid]);
+      const emptyVariable: VariableModel = cloneDeep<VariableModel>(state[NEW_VARIABLE_NAME]);
       state[name] = cloneDeep(variableAdapters.get(action.payload.type).initialState);
       state[name] = emptyVariable;
     })
     .addCase(changeToEditorEditMode, (state, action) => {
-      if (action.payload.name === emptyUuid) {
-        state[emptyUuid] = cloneDeep(variableAdapters.get('query').initialState);
-        state[emptyUuid].index = Object.values(state).length - 1;
+      if (action.payload.name === NEW_VARIABLE_NAME) {
+        state[NEW_VARIABLE_NAME] = cloneDeep(variableAdapters.get('query').initialState);
+        state[NEW_VARIABLE_NAME].index = Object.values(state).length - 1;
       }
     })
     .addCase(changeVariableType, (state, action) => {

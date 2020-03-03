@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
 import { sharedReducer } from './sharedReducer';
 import { QueryVariableModel, VariableHide } from '../variable';
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE, emptyUuid } from './types';
+import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE, NEW_VARIABLE_NAME } from './types';
 import {
   addVariable,
   changeVariableOrder,
@@ -127,7 +127,7 @@ describe('sharedReducer', () => {
       const initialState: VariablesState = getVariableState(3, 1, true);
 
       const payload = toVariablePayload({ name: 'Name-1', type: 'query' });
-      const emptyPayload = toVariablePayload({ name: emptyUuid, type: 'query' });
+      const emptyPayload = toVariablePayload({ name: NEW_VARIABLE_NAME, type: 'query' });
 
       const expectedState: VariablesState = {
         'Name-0': {
@@ -279,20 +279,20 @@ describe('sharedReducer', () => {
             label: 'Label-2',
             skipUrlSync: false,
           },
-          [emptyUuid]: {
+          [NEW_VARIABLE_NAME]: {
             type: 'query',
-            name: `Name-${emptyUuid}`,
+            name: `Name-${NEW_VARIABLE_NAME}`,
             hide: VariableHide.dontHide,
             index: 3,
-            label: `Label-${emptyUuid}`,
+            label: `Label-${NEW_VARIABLE_NAME}`,
             skipUrlSync: false,
           },
           ['Name-11']: {
             type: 'query',
-            name: `Name-${emptyUuid}`,
+            name: `Name-${NEW_VARIABLE_NAME}`,
             hide: VariableHide.dontHide,
             index: 3,
-            label: `Label-${emptyUuid}`,
+            label: `Label-${NEW_VARIABLE_NAME}`,
             skipUrlSync: false,
           },
         });
@@ -461,7 +461,7 @@ describe('sharedReducer', () => {
       it('then state should be correct', () => {
         variableAdapters.set('query', createQueryVariableAdapter());
         const initialState: VariablesState = getVariableState(3);
-        const payload = toVariablePayload({ name: emptyUuid, type: 'query' });
+        const payload = toVariablePayload({ name: NEW_VARIABLE_NAME, type: 'query' });
         reducerTester<VariablesState>()
           .givenReducer(sharedReducer, initialState)
           .whenActionIsDispatched(changeToEditorEditMode(payload))
@@ -490,7 +490,7 @@ describe('sharedReducer', () => {
               label: 'Label-2',
               skipUrlSync: false,
             },
-            [emptyUuid]: {
+            [NEW_VARIABLE_NAME]: {
               ...initialQueryVariableModelState,
               index: 3,
             },
