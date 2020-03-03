@@ -1,15 +1,15 @@
 import { toVariablePayload } from './actions';
 import { emptyUuid } from './types';
 import { reducerTester } from '../../../../test/core/redux/reducerTester';
-import { changeToEditorEditMode, changeToEditorListMode, uuidInEditorReducer } from './uuidInEditorReducer';
+import { changeToEditorEditMode, changeToEditorListMode, inEditorReducer } from './inEditorReducer';
 
-describe('uuidInEditorReducer', () => {
+describe('inEditorReducer', () => {
   describe('when changeToEditorEditMode is dispatched', () => {
     it('then state should be correct', () => {
       const initialState: string | null = null;
       const payload = toVariablePayload({ name: emptyUuid, type: 'query' });
       reducerTester<string | null>()
-        .givenReducer(uuidInEditorReducer, initialState)
+        .givenReducer(inEditorReducer, initialState)
         .whenActionIsDispatched(changeToEditorEditMode(payload))
         .thenStateShouldEqual(emptyUuid);
     });
@@ -19,7 +19,7 @@ describe('uuidInEditorReducer', () => {
     it('then state should be correct', () => {
       const initialState: string | null = emptyUuid;
       reducerTester<string | null>()
-        .givenReducer(uuidInEditorReducer, initialState)
+        .givenReducer(inEditorReducer, initialState)
         .whenActionIsDispatched(changeToEditorListMode())
         .thenStateShouldEqual(null);
     });

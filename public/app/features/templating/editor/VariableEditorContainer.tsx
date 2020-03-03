@@ -15,13 +15,13 @@ import {
 import { MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { connectWithStore } from '../../../core/utils/connectWithReduxStore';
 import { getVariableClones } from '../state/selectors';
-import { changeToEditorEditMode, changeToEditorListMode } from '../state/uuidInEditorReducer';
+import { changeToEditorEditMode, changeToEditorListMode } from '../state/inEditorReducer';
 import { VariableModel } from '../variable';
 
 interface OwnProps {}
 
 interface ConnectedProps {
-  uuidInEditor: string | null;
+  inEditor: string | null;
   variables: VariableModel[];
 }
 
@@ -67,7 +67,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
   };
 
   render() {
-    const variableToEdit = this.props.variables.find(v => v.name === this.props.uuidInEditor) ?? null;
+    const variableToEdit = this.props.variables.find(v => v.name === this.props.inEditor) ?? null;
     return (
       <div>
         <div className="page-action-bar">
@@ -78,7 +78,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
             >
               Variables
             </a>
-            {this.props.uuidInEditor === emptyUuid && (
+            {this.props.inEditor === emptyUuid && (
               <span>
                 <i
                   className="fa fa-fw fa-chevron-right"
@@ -87,7 +87,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
                 New
               </span>
             )}
-            {this.props.uuidInEditor && this.props.uuidInEditor !== emptyUuid && (
+            {this.props.inEditor && this.props.inEditor !== emptyUuid && (
               <span>
                 <i
                   className="fa fa-fw fa-chevron-right"
@@ -129,7 +129,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
 
 const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = state => ({
   variables: getVariableClones(state, true),
-  uuidInEditor: state.templating.uuidInEditor,
+  inEditor: state.templating.inEditor,
 });
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = {

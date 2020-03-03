@@ -8,7 +8,7 @@ import {
 } from './reducer';
 import { storeNewVariable, toVariablePayload, VariableIdentifier } from '../state/actions';
 import { variableAdapters } from '../adapters';
-import { changeToEditorListMode } from '../state/uuidInEditorReducer';
+import { changeToEditorListMode } from '../state/inEditorReducer';
 import { emptyUuid } from '../state/types';
 
 export const variableEditorMount = (identifier: VariableIdentifier): ThunkResult<void> => {

@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { VariablePayload } from './actions';
 
-const uuidInEditorReducerSlice = createSlice({
-  name: 'uuidInEditor',
+const inEditorReducerSlice = createSlice({
+  name: 'templating/inEditor',
   initialState: null,
   reducers: {
     changeToEditorEditMode: (state, action: PayloadAction<VariablePayload>) => {
@@ -14,6 +14,6 @@ const uuidInEditorReducerSlice = createSlice({
   },
 });
 
-export const uuidInEditorReducer = uuidInEditorReducerSlice.reducer;
+export const inEditorReducer = inEditorReducerSlice.reducer;
 
-export const { changeToEditorListMode, changeToEditorEditMode } = uuidInEditorReducerSlice.actions;
+export const { changeToEditorListMode, changeToEditorEditMode } = inEditorReducerSlice.actions;

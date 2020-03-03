@@ -22,7 +22,7 @@ import { variableEditorUnMounted } from '../editor/reducer';
 import { initialQueryVariableModelState } from '../query/reducer';
 import { Deferred } from '../deferred';
 import { getVariableState, getVariableTestContext } from './helpers';
-import { changeToEditorEditMode } from './uuidInEditorReducer';
+import { changeToEditorEditMode } from './inEditorReducer';
 import { initialVariablesState, VariablesState } from './variablesReducer';
 
 describe('sharedReducer', () => {

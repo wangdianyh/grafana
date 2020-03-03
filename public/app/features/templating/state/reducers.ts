@@ -5,7 +5,7 @@ import {
   OptionsPickerState,
 } from '../pickers/OptionsPicker/reducer';
 import { initialVariableEditorState, variableEditorReducer, VariableEditorState } from '../editor/reducer';
-import { uuidInEditorReducer } from './uuidInEditorReducer';
+import { inEditorReducer } from './inEditorReducer';
 import { variablesReducer } from './variablesReducer';
 import { VariableModel } from '../variable';
 
@@ -13,19 +13,19 @@ export interface TemplatingState {
   variables: Record<string, VariableModel>;
   optionsPicker: OptionsPickerState;
   editor: VariableEditorState;
-  uuidInEditor: string | null;
+  inEditor: string | null;
 }
 
 export const initialTemplatingState: TemplatingState = {
   variables: {},
   optionsPicker: initialOptionPickerState,
   editor: initialVariableEditorState,
-  uuidInEditor: null,
+  inEditor: null,
 };
 
 export default {
   templating: combineReducers({
-    uuidInEditor: uuidInEditorReducer,
+    inEditor: inEditorReducer,
     optionsPicker: optionsPickerReducer,
     editor: variableEditorReducer,
     variables: variablesReducer,

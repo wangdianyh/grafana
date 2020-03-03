@@ -18,7 +18,7 @@ import { ALL_VARIABLE_VALUE, emptyUuid, getInstanceState } from './types';
 import { variableAdapters } from '../adapters';
 import { changeVariableNameSucceeded, variableEditorUnMounted } from '../editor/reducer';
 import { Deferred } from '../deferred';
-import { changeToEditorEditMode } from './uuidInEditorReducer';
+import { changeToEditorEditMode } from './inEditorReducer';
 import { initialVariablesState } from './variablesReducer';
 
 export const sharedReducer = createReducer(initialVariablesState, builder =>
