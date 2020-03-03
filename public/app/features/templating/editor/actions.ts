@@ -8,7 +8,7 @@ import {
 } from './reducer';
 import { storeNewVariable, toVariablePayload, VariableIdentifier } from '../state/actions';
 import { variableAdapters } from '../adapters';
-import { changeToEditorListMode } from '../state/inEditorReducer';
+import { changeToEditorEditMode, changeToEditorListMode } from '../state/inEditorReducer';
 import { NEW_VARIABLE_NAME } from '../state/types';
 
 export const variableEditorMount = (identifier: VariableIdentifier): ThunkResult<void> => {
@@ -66,6 +66,8 @@ export const changeVariableName = (identifier: VariableIdentifier, newName: stri
 
     if (!errorText) {
       dispatch(changeVariableNameSucceeded(toVariablePayload(identifier, newName)));
+      const renamedVariable = getVariable(newName, getState());
+      dispatch(changeToEditorEditMode(toVariablePayload(renamedVariable)));
     }
   };
 };

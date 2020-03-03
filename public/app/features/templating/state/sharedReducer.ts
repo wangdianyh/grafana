@@ -43,21 +43,21 @@ export const sharedReducer = createReducer(initialVariablesState, builder =>
     })
     .addCase(removeVariable, (state, action) => {
       delete state[action.payload.name];
-      const variableStates = Object.values(state);
-      for (let index = 0; index < variableStates.length; index++) {
-        variableStates[index].index = index;
+      const variables = Object.values(state);
+      for (let index = 0; index < variables.length; index++) {
+        variables[index].index = index;
       }
     })
     .addCase(variableEditorUnMounted, (state, action) => {
-      const variableState = state[action.payload.name];
-
-      if (action.payload.name === NEW_VARIABLE_NAME && !variableState) {
-        return;
-      }
-
-      if (state[NEW_VARIABLE_NAME]) {
-        delete state[NEW_VARIABLE_NAME];
-      }
+      // const variableState = state[action.payload.name];
+      //
+      // if (!variableState) {
+      //   return;
+      // }
+      //
+      // if (state[NEW_VARIABLE_NAME]) {
+      //   delete state[NEW_VARIABLE_NAME];
+      // }
     })
     .addCase(duplicateVariable, (state, action) => {
       const original = cloneDeep<VariableModel>(state[action.payload.name]);
@@ -109,8 +109,16 @@ export const sharedReducer = createReducer(initialVariablesState, builder =>
       };
     })
     .addCase(changeVariableNameSucceeded, (state, action) => {
-      const instanceState = getInstanceState(state, action.payload.name);
-      instanceState.name = action.payload.data;
+      const oldName = action.payload.name;
+      const newName = action.payload.data;
+      const variableBeforeRename = cloneDeep(state[oldName]);
+
+      state[newName] = {
+        ...variableBeforeRename,
+        name: newName,
+      };
+
+      delete state[oldName];
     })
     .addCase(setCurrentVariableValue, (state, action) => {
       const instanceState = getInstanceState<VariableWithOptions>(state, action.payload.name);

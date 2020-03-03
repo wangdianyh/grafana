@@ -7,9 +7,10 @@ import { NEW_VARIABLE_NAME } from './types';
 
 export const getVariable = <T extends VariableModel = VariableModel>(
   name: string,
-  state: StoreState = getState()
+  state: StoreState = getState(),
+  throwWhenNotFound = true
 ): T => {
-  if (!state.templating.variables[name]) {
+  if (!state.templating.variables[name] && throwWhenNotFound) {
     throw new Error(`Couldn't find variable with name:${name}`);
   }
 
