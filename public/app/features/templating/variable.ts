@@ -138,7 +138,6 @@ export interface VariableWithOptions extends VariableModel {
 }
 
 export interface VariableModel {
-  uuid?: string; // only exists for variables in redux state
   global?: boolean; // only exists for variables in redux state
   type: VariableType;
   name: string;

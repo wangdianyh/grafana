@@ -95,11 +95,11 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
       return;
     }
 
-    if (this.props.variable.uuid !== emptyUuid) {
+    if (this.props.variable.name !== emptyUuid) {
       await this.props.onEditorUpdate(this.props.identifier);
     }
 
-    if (this.props.variable.uuid === emptyUuid) {
+    if (this.props.variable.name === emptyUuid) {
       await this.props.onEditorAdd(this.props.identifier);
     }
   };
@@ -109,7 +109,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
     if (!EditorToRender) {
       return null;
     }
-    const newVariable = this.props.variable.uuid && this.props.variable.uuid === emptyUuid;
+    const newVariable = this.props.variable.name === emptyUuid;
 
     return (
       <div>
@@ -225,7 +225,7 @@ export class VariableEditorEditorUnConnected extends PureComponent<Props> {
 
 const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = (state, ownProps) => ({
   editor: state.templating.editor,
-  variable: getVariable(ownProps.identifier.uuid!, state),
+  variable: getVariable(ownProps.identifier.name, state),
 });
 
 const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = {

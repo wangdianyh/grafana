@@ -1,20 +1,20 @@
 import { cloneDeep } from 'lodash';
 import {
+  hideOptions,
+  initialState as optionsPickerInitialState,
+  moveOptionsHighlight,
   optionsPickerReducer,
   OptionsPickerState,
-  initialState as optionsPickerInitialState,
-  toggleOption,
   showOptions,
-  hideOptions,
-  toggleTag,
-  moveOptionsHighlight,
   toggleAllOptions,
+  toggleOption,
+  toggleTag,
   updateOptionsAndFilter,
-  updateSearchQuery,
   updateOptionsFromSearch,
+  updateSearchQuery,
 } from './reducer';
 import { reducerTester } from '../../../../../test/core/redux/reducerTester';
-import { VariableWithMultiSupport, VariableTag } from '../../variable';
+import { VariableTag, VariableWithMultiSupport } from '../../variable';
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../../state/types';
 
 const getVariableTestContext = (extend: Partial<OptionsPickerState>) => {
@@ -282,7 +282,7 @@ describe('optionsPickerReducer', () => {
         query,
         options: [selected, { text: 'A', value: 'A', selected: false }, { text: 'B', value: 'B', selected: false }],
         multi: false,
-        uuid: '0',
+        name: 'Name-0',
       } as VariableWithMultiSupport;
 
       reducerTester<OptionsPickerState>()
@@ -292,7 +292,7 @@ describe('optionsPickerReducer', () => {
           ...initialState,
           options: payload.options,
           searchQuery,
-          uuid: payload.uuid,
+          name: payload.name,
           multi: payload.multi,
           selectedValues: [selected],
         });
@@ -310,14 +310,14 @@ describe('optionsPickerReducer', () => {
         { text: 'B', value: 'B', selected: false },
       ];
       const { initialState } = getVariableTestContext({ searchQuery });
-      const payload = { uuid: '0', current, query, options } as VariableWithMultiSupport;
+      const payload = { name: 'Name-0', current, query, options } as VariableWithMultiSupport;
 
       reducerTester<OptionsPickerState>()
         .givenReducer(optionsPickerReducer, cloneDeep(initialState))
         .whenActionIsDispatched(showOptions(payload))
         .thenStateShouldEqual({
           ...initialState,
-          uuid: '0',
+          name: 'Name-0',
           searchQuery: '',
           selectedValues: [
             {
@@ -341,7 +341,7 @@ describe('optionsPickerReducer', () => {
         ],
         searchQuery: 'a search',
         highlightIndex: 1,
-        uuid: '0',
+        name: 'Name-0',
       });
 
       reducerTester<OptionsPickerState>()

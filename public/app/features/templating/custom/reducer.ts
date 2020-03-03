@@ -1,11 +1,10 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { CustomVariableModel, VariableHide, VariableOption } from '../variable';
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE, emptyUuid, getInstanceState } from '../state/types';
+import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE, getInstanceState } from '../state/types';
 import { createCustomOptionsFromQuery } from './actions';
 import { initialVariablesState } from '../state/variablesReducer';
 
 export const initialCustomVariableModelState: CustomVariableModel = {
-  uuid: emptyUuid,
   global: false,
   multi: false,
   includeAll: false,
@@ -24,7 +23,7 @@ export const initialCustomVariableModelState: CustomVariableModel = {
 
 export const customVariableReducer = createReducer(initialVariablesState, builder =>
   builder.addCase(createCustomOptionsFromQuery, (state, action) => {
-    const instanceState = getInstanceState<CustomVariableModel>(state, action.payload.uuid);
+    const instanceState = getInstanceState<CustomVariableModel>(state, action.payload.name);
     const { includeAll, query } = instanceState;
     const match = query.match(/(?:\\,|[^,])+/g) ?? [];
 

@@ -46,12 +46,12 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
   };
 
   onEditVariable = (identifier: VariableIdentifier) => {
-    this.props.changeToEditorEditMode(toVariablePayload({ uuid: identifier.uuid, type: identifier.type }));
+    this.props.changeToEditorEditMode(toVariablePayload(identifier));
   };
 
   onChangeToAddMode = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.changeToEditorEditMode(toVariablePayload({ uuid: emptyUuid, type: 'query' }));
+    this.props.changeToEditorEditMode(toVariablePayload({ name: emptyUuid, type: 'query' }));
   };
 
   onChangeVariableOrder = (identifier: VariableIdentifier, fromIndex: number, toIndex: number) => {
@@ -67,7 +67,7 @@ class VariableEditorContainerUnconnected extends PureComponent<Props> {
   };
 
   render() {
-    const variableToEdit = this.props.variables.find(s => s.uuid === this.props.uuidInEditor) ?? null;
+    const variableToEdit = this.props.variables.find(v => v.name === this.props.uuidInEditor) ?? null;
     return (
       <div>
         <div className="page-action-bar">

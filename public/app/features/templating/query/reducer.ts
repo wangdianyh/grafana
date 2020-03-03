@@ -15,7 +15,6 @@ import templateSrv from '../template_srv';
 import {
   ALL_VARIABLE_TEXT,
   ALL_VARIABLE_VALUE,
-  emptyUuid,
   getInstanceState,
   NONE_VARIABLE_TEXT,
   NONE_VARIABLE_VALUE,
@@ -31,7 +30,6 @@ export interface QueryVariableEditorState {
 }
 
 export const initialQueryVariableModelState: QueryVariableModel = {
-  uuid: emptyUuid,
   global: false,
   index: -1,
   type: 'query',
@@ -132,7 +130,7 @@ export const queryVariableReducer = createReducer(initialVariablesState, builder
   builder
     .addCase(updateVariableOptions, (state, action) => {
       const results = action.payload.data;
-      const instanceState = getInstanceState<QueryVariableModel>(state, action.payload.uuid);
+      const instanceState = getInstanceState<QueryVariableModel>(state, action.payload.name);
       const { regex, includeAll, sort } = instanceState;
       const options = metricNamesToVariableValues(regex, sort, results);
 
@@ -146,7 +144,7 @@ export const queryVariableReducer = createReducer(initialVariablesState, builder
       instanceState.options = options;
     })
     .addCase(updateVariableTags, (state, action) => {
-      const instanceState = getInstanceState<QueryVariableModel>(state, action.payload.uuid);
+      const instanceState = getInstanceState<QueryVariableModel>(state, action.payload.name);
       const results = action.payload.data;
       const tags: VariableTag[] = [];
       for (let i = 0; i < results.length; i++) {

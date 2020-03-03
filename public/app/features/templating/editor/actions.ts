@@ -8,12 +8,12 @@ import {
 } from './reducer';
 import { storeNewVariable, toVariablePayload, VariableIdentifier } from '../state/actions';
 import { variableAdapters } from '../adapters';
-import { v4 } from 'uuid';
 import { changeToEditorListMode } from '../state/uuidInEditorReducer';
+import { emptyUuid } from '../state/types';
 
 export const variableEditorMount = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    dispatch(variableEditorMounted(getVariable(identifier.uuid!).name));
+    dispatch(variableEditorMounted(getVariable(identifier.name).name));
   };
 };
 
@@ -25,7 +25,7 @@ export const variableEditorUnMount = (identifier: VariableIdentifier): ThunkResu
 
 export const onEditorUpdate = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const variableInState = getVariable(identifier.uuid!, getState());
+    const variableInState = getVariable(identifier.name, getState());
     await variableAdapters.get(variableInState.type).updateOptions(variableInState);
     dispatch(changeToEditorListMode());
   };
@@ -33,9 +33,9 @@ export const onEditorUpdate = (identifier: VariableIdentifier): ThunkResult<void
 
 export const onEditorAdd = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const uuid = v4();
-    dispatch(storeNewVariable(toVariablePayload({ type: identifier.type, uuid })));
-    const variableInState = getVariable(uuid, getState());
+    const emptyVarible = getVariable(emptyUuid, getState());
+    dispatch(storeNewVariable(toVariablePayload({ type: identifier.type, name: emptyVarible.name })));
+    const variableInState = getVariable(emptyVarible.name, getState());
     await variableAdapters.get(variableInState.type).updateOptions(variableInState);
     dispatch(changeToEditorListMode());
   };
@@ -53,7 +53,8 @@ export const changeVariableName = (identifier: VariableIdentifier, newName: stri
     }
 
     const variables = getVariables(getState());
-    const stateVariables = variables.filter(v => v.name === newName && v.uuid !== identifier.uuid);
+    const variableInState = getVariable(identifier.name, getState());
+    const stateVariables = variables.filter(v => v.name === newName && v.index !== variableInState.index);
 
     if (stateVariables.length) {
       errorText = 'Variable with the same name already exists';

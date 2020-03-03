@@ -1,6 +1,5 @@
 import castArray from 'lodash/castArray';
-import { v4 } from 'uuid';
-import { createAction, PrepareAction } from '@reduxjs/toolkit';
+import { createAction } from '@reduxjs/toolkit';
 import { UrlQueryMap, UrlQueryValue } from '@grafana/runtime';
 
 import {
@@ -49,7 +48,7 @@ import { updateLocation } from 'app/core/actions';
 
 export interface VariableIdentifier {
   type: VariableType;
-  uuid: string;
+  name: string;
 }
 
 export interface VariablePayload<T extends any = undefined> extends VariableIdentifier {
@@ -62,37 +61,10 @@ export interface AddVariable<T extends VariableModel = VariableModel> {
   model: T;
 }
 
-export const addVariable = createAction<PrepareAction<VariablePayload<AddVariable>>>(
-  'templating/addVariable',
-  (payload: VariablePayload<AddVariable>) => {
-    return {
-      payload: {
-        ...payload,
-        uuid: payload.uuid ?? v4(), // for testing purposes we allow to pass existing uuid
-      },
-    };
-  }
-);
-
+export const addVariable = createAction<VariablePayload<AddVariable>>('templating/addVariable');
 export const removeVariable = createAction<VariablePayload>('templating/removeVariable');
 export const storeNewVariable = createAction<VariablePayload>('templating/storeNewVariable');
-export interface DuplicateVariable {
-  newUuid: string;
-}
-export const duplicateVariable = createAction<PrepareAction<VariablePayload<DuplicateVariable>>>(
-  'templating/duplicateVariable',
-  (payload: VariablePayload<DuplicateVariable>) => {
-    return {
-      payload: {
-        ...payload,
-        data: {
-          ...payload.data,
-          newUuid: payload.data.newUuid ?? v4(), // for testing purposes we allow to pass existing newUuid
-        },
-      },
-    };
-  }
-);
+export const duplicateVariable = createAction<VariablePayload>('templating/duplicateVariable');
 export const changeVariableOrder = createAction<VariablePayload<{ fromIndex: number; toIndex: number }>>(
   'templating/changeVariableOrder'
 );
@@ -110,7 +82,7 @@ export const changeVariableProp = createAction<VariablePayload<{ propName: strin
 );
 
 export const toVariableIdentifier = (variable: VariableModel): VariableIdentifier => {
-  return { type: variable.type, uuid: variable.uuid! };
+  return { type: variable.type, name: variable.name };
 };
 
 export function toVariablePayload<T extends any = undefined>(
@@ -124,7 +96,7 @@ export function toVariablePayload<T extends any = undefined>(
   obj: VariableIdentifier | VariableModel,
   data?: T
 ): VariablePayload<T> {
-  return { type: obj.type, uuid: obj.uuid!, data: data as T };
+  return { type: obj.type, name: obj.name, data: data as T };
 }
 
 export const initDashboardTemplating = (list: VariableModel[]): ThunkResult<void> => {
@@ -160,7 +132,7 @@ export const processVariableDependencies = async (variable: VariableModel, state
 
 export const processVariable = (identifier: VariableIdentifier, queryParams: UrlQueryMap): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const variable = getVariable(identifier.uuid!, getState());
+    const variable = getVariable(identifier.name, getState());
     await processVariableDependencies(variable, getState());
 
     const urlValue = queryParams['var-' + variable.name];
@@ -199,14 +171,14 @@ export const processVariables = (): ThunkResult<void> => {
 
 export const setOptionFromUrl = (identifier: VariableIdentifier, urlValue: UrlQueryValue): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const variable = getVariable(identifier.uuid!, getState());
+    const variable = getVariable(identifier.name, getState());
     if (variable.hasOwnProperty('refresh') && (variable as QueryVariableModel).refresh !== VariableRefresh.never) {
       // updates options
       await variableAdapters.get(variable.type).updateOptions(variable);
     }
 
     // get variable from state
-    const variableFromState = getVariable<VariableWithOptions>(variable.uuid!, getState());
+    const variableFromState = getVariable<VariableWithOptions>(variable.name, getState());
     if (!variableFromState) {
       throw new Error(`Couldn't find variable with name: ${variable.name}`);
     }
@@ -280,7 +252,7 @@ export const validateVariableSelectionState = (
   defaultValue?: string
 ): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const variableInState = getVariable<VariableWithOptions>(identifier.uuid!, getState());
+    const variableInState = getVariable<VariableWithOptions>(identifier.name, getState());
     const setValue = variableAdapters.get(variableInState.type).setValue;
     if (!variableInState.current) {
       return setValue(variableInState, {} as VariableOption);
@@ -366,7 +338,7 @@ const createGraph = (variables: VariableModel[]) => {
 export const variableUpdated = (identifier: VariableIdentifier, emitChangeEvents: boolean): ThunkResult<void> => {
   return (dispatch, getState) => {
     // if there is a variable lock ignore cascading update because we are in a boot up scenario
-    const variable = getVariable(identifier.uuid!, getState());
+    const variable = getVariable(identifier.name, getState());
     if (variable.initLock) {
       return Promise.resolve();
     }

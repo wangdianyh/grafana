@@ -11,8 +11,7 @@ export const getVariableState = (
   const variables: Record<string, VariableModel> = {};
 
   for (let index = 0; index < noOfVariables; index++) {
-    variables[index] = {
-      uuid: index.toString(),
+    variables[`Name-${index}`] = {
       type: 'query',
       name: `Name-${index}`,
       hide: VariableHide.dontHide,
@@ -23,8 +22,7 @@ export const getVariableState = (
   }
 
   if (includeEmpty) {
-    variables[emptyUuid] = {
-      uuid: emptyUuid,
+    variables[`Name-${emptyUuid}`] = {
       type: 'query',
       name: `Name-${emptyUuid}`,
       hide: VariableHide.dontHide,
@@ -40,13 +38,12 @@ export const getVariableState = (
 export const getVariableTestContext = (variableOverrides: Partial<QueryVariableModel> = {}) => {
   const defaultVariable = {
     ...initialQueryVariableModelState,
-    uuid: '0',
     index: 0,
-    name: '0',
+    name: 'Name-0',
   };
   const variable = { ...defaultVariable, ...variableOverrides };
   const initialState: VariablesState = {
-    '0': variable,
+    'Name-0': variable,
   };
 
   return { initialState };

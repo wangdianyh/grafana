@@ -31,7 +31,7 @@ export const updateQueryVariableOptions = (
   searchFilter?: string
 ): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const variableInState = getVariable<QueryVariableModel>(identifier.uuid!, getState());
+    const variableInState = getVariable<QueryVariableModel>(identifier.name, getState());
     try {
       await dispatch(removeVariableEditorError({ errorProp: 'update' }));
       const dataSource = await getDatasourceSrv().get(variableInState.datasource ?? '');
@@ -78,7 +78,7 @@ export const initQueryVariableEditor = (identifier: VariableIdentifier): ThunkRe
   const allDataSources = [defaultDatasource].concat(dataSources);
   dispatch(changeVariableEditorExtended({ propName: 'dataSources', propValue: allDataSources }));
 
-  const variable = getVariable<QueryVariableModel>(identifier.uuid!, getState());
+  const variable = getVariable<QueryVariableModel>(identifier.name, getState());
   if (!variable.datasource) {
     return;
   }
@@ -107,7 +107,7 @@ export const changeQueryVariableQuery = (
   query: any,
   definition: string
 ): ThunkResult<void> => (dispatch, getState) => {
-  const variableInState = getVariable<QueryVariableModel>(identifier.uuid!, getState());
+  const variableInState = getVariable<QueryVariableModel>(identifier.name, getState());
   if (typeof query === 'string' && query.match(new RegExp('\\$' + variableInState.name + '(/| |$)'))) {
     const errorText = 'Query cannot contain a reference to itself. Variable: $' + variableInState.name;
     dispatch(addVariableEditorError({ errorProp: 'query', errorText }));

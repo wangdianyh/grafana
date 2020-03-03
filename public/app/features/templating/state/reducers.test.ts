@@ -10,8 +10,7 @@ describe('variablesReducer', () => {
   describe('when cleanUpDashboard is dispatched', () => {
     it('then all variables except global variables should be removed', () => {
       const initialState: VariablesState = {
-        '0': {
-          uuid: '0',
+        'Name-0': {
           type: 'query',
           name: 'Name-0',
           hide: VariableHide.dontHide,
@@ -19,8 +18,7 @@ describe('variablesReducer', () => {
           label: 'Label-0',
           skipUrlSync: false,
         },
-        '1': {
-          uuid: '1',
+        'Name-1': {
           type: 'query',
           name: 'Name-1',
           hide: VariableHide.dontHide,
@@ -29,8 +27,7 @@ describe('variablesReducer', () => {
           skipUrlSync: false,
           global: true,
         },
-        '2': {
-          uuid: '2',
+        'Name-2': {
           type: 'query',
           name: 'Name-2',
           hide: VariableHide.dontHide,
@@ -38,8 +35,7 @@ describe('variablesReducer', () => {
           label: 'Label-2',
           skipUrlSync: false,
         },
-        '3': {
-          uuid: '3',
+        'Name-3': {
           type: 'query',
           name: 'Name-3',
           hide: VariableHide.dontHide,
@@ -54,8 +50,7 @@ describe('variablesReducer', () => {
         .givenReducer(variablesReducer, initialState)
         .whenActionIsDispatched(cleanUpDashboard())
         .thenStateShouldEqual({
-          '1': {
-            uuid: '1',
+          'Name-1': {
             type: 'query',
             name: 'Name-1',
             hide: VariableHide.dontHide,
@@ -64,8 +59,7 @@ describe('variablesReducer', () => {
             skipUrlSync: false,
             global: true,
           },
-          '3': {
-            uuid: '3',
+          'Name-3': {
             type: 'query',
             name: 'Name-3',
             hide: VariableHide.dontHide,
@@ -81,8 +75,7 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched with a type prop that is registered in variableAdapters', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': {
-          uuid: '0',
+        'Name-0': {
           type: 'query',
           name: 'Name-0',
           hide: VariableHide.dontHide,
@@ -109,12 +102,12 @@ describe('variablesReducer', () => {
       const mockAction = createAction<VariablePayload>('mockAction');
       reducerTester<VariablesState>()
         .givenReducer(variablesReducer, initialState)
-        .whenActionIsDispatched(mockAction(toVariablePayload({ type: 'query', uuid: '0' })))
+        .whenActionIsDispatched(mockAction(toVariablePayload({ type: 'query', name: 'Name-0' })))
         .thenStateShouldEqual(initialState);
       expect(variableAdapter.reducer).toHaveBeenCalledTimes(1);
       expect(variableAdapter.reducer).toHaveBeenCalledWith(
         initialState,
-        mockAction(toVariablePayload({ type: 'query', uuid: '0' }))
+        mockAction(toVariablePayload({ type: 'query', name: 'Name-0' }))
       );
     });
   });
@@ -122,8 +115,7 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched with a type prop that is not registered in variableAdapters', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': {
-          uuid: '0',
+        'Name-0': {
           type: 'query',
           name: 'Name-0',
           hide: VariableHide.dontHide,
@@ -150,7 +142,7 @@ describe('variablesReducer', () => {
       const mockAction = createAction<VariablePayload>('mockAction');
       reducerTester<VariablesState>()
         .givenReducer(variablesReducer, initialState)
-        .whenActionIsDispatched(mockAction(toVariablePayload({ type: 'adhoc', uuid: '0' })))
+        .whenActionIsDispatched(mockAction(toVariablePayload({ type: 'adhoc', name: 'Name-0' })))
         .thenStateShouldEqual(initialState);
       expect(variableAdapter.reducer).toHaveBeenCalledTimes(0);
     });
@@ -159,8 +151,7 @@ describe('variablesReducer', () => {
   describe('when any action is dispatched missing type prop', () => {
     it('then the reducer for that variableAdapter should be invoked', () => {
       const initialState: VariablesState = {
-        '0': {
-          uuid: '0',
+        'Name-0': {
           type: 'query',
           name: 'Name-0',
           hide: VariableHide.dontHide,

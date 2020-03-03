@@ -6,7 +6,7 @@ const uuidInEditorReducerSlice = createSlice({
   initialState: null,
   reducers: {
     changeToEditorEditMode: (state, action: PayloadAction<VariablePayload>) => {
-      return action.payload.uuid;
+      return action.payload.name;
     },
     changeToEditorListMode: (state, action: PayloadAction<undefined>) => {
       return null;

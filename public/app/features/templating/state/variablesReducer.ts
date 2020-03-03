@@ -20,7 +20,7 @@ export const variablesReducer = (
     }
 
     const variables = globalVariables.reduce((allVariables, state) => {
-      allVariables[state.uuid!] = state;
+      allVariables[state.name] = state;
       return allVariables;
     }, {} as Record<string, VariableModel>);
 
@@ -31,7 +31,8 @@ export const variablesReducer = (
     // Now that we know we are dealing with a payload that is addressed for an adapted variable let's reduce state:
     // Firstly call the sharedTemplatingReducer that handles all shared actions between variable types
     // Secondly call the specific variable type's reducer
-    return variableAdapters.get(action.payload.type).reducer(sharedReducer(state, action), action);
+    const sharedState = sharedReducer(state, action);
+    return variableAdapters.get(action.payload.type).reducer(sharedState, action);
   }
 
   return state;
