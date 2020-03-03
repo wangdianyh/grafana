@@ -36,7 +36,7 @@ describe('sharedReducer', () => {
         .whenActionIsDispatched(addVariable(payload))
         .thenStatePredicateShouldEqual(resultingState => {
           // we need to remove initLock because instances will no be reference equal
-          const { initLock, ...resultingRest } = resultingState[0];
+          const { initLock, ...resultingRest } = resultingState['name from model'];
           const expectedState = { ...initialQueryVariableModelState };
           delete expectedState.initLock;
           expect(resultingRest).toEqual({
@@ -279,7 +279,7 @@ describe('sharedReducer', () => {
             label: 'Label-2',
             skipUrlSync: false,
           },
-          [`Name-${emptyUuid}`]: {
+          [emptyUuid]: {
             type: 'query',
             name: `Name-${emptyUuid}`,
             hide: VariableHide.dontHide,
@@ -316,7 +316,7 @@ describe('sharedReducer', () => {
         .thenStateShouldEqual({
           ...initialState,
           'Name-0': ({
-            ...initialState[0],
+            ...initialState['Name-0'],
             options: [
               { selected: false, text: 'All', value: '$__all' },
               { selected: true, text: 'A', value: 'A' },
@@ -345,7 +345,7 @@ describe('sharedReducer', () => {
         .thenStateShouldEqual({
           ...initialState,
           'Name-0': ({
-            ...initialState[0],
+            ...initialState['Name-0'],
             options: [
               { selected: false, text: 'All', value: '$__all' },
               { selected: true, text: 'A', value: 'A' },
@@ -374,7 +374,7 @@ describe('sharedReducer', () => {
         .thenStateShouldEqual({
           ...initialState,
           'Name-0': ({
-            ...initialState[0],
+            ...initialState['Name-0'],
             options: [
               { selected: true, text: 'All', value: '$__all' },
               { selected: false, text: 'A', value: 'A' },
@@ -400,10 +400,10 @@ describe('sharedReducer', () => {
         .whenActionIsDispatched(resolveInitLock(payload))
         .thenStatePredicateShouldEqual(resultingState => {
           // we need to remove initLock because instances will no be reference equal
-          const { initLock, ...resultingRest } = resultingState[0];
+          const { initLock, ...resultingRest } = resultingState['Name-0'];
           const expectedState = cloneDeep(initialState);
           delete expectedState['Name-0'].initLock;
-          expect(resultingRest).toEqual(expectedState[0]);
+          expect(resultingRest).toEqual(expectedState['Name-0']);
           // make sure that initLock is defined
           expect(resultingState['Name-0'].initLock!).toBeDefined();
           expect(resultingState['Name-0'].initLock!.promise).toBeDefined();
@@ -430,7 +430,7 @@ describe('sharedReducer', () => {
         .thenStateShouldEqual({
           ...initialState,
           'Name-0': {
-            ...initialState[0],
+            ...initialState['Name-0'],
             initLock: null,
           },
         });
@@ -449,7 +449,7 @@ describe('sharedReducer', () => {
         .thenStateShouldEqual({
           ...initialState,
           'Name-0': {
-            ...initialState[0],
+            ...initialState['Name-0'],
             label: 'Updated label',
           },
         });

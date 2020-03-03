@@ -22,7 +22,7 @@ export const getVariableState = (
   }
 
   if (includeEmpty) {
-    variables[`Name-${emptyUuid}`] = {
+    variables[emptyUuid] = {
       type: 'query',
       name: `Name-${emptyUuid}`,
       hide: VariableHide.dontHide,
