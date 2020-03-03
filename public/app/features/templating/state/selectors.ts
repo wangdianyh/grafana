@@ -24,9 +24,9 @@ export const getVariables = (state: StoreState = getState()): VariableModel[] =>
   return Object.values(state.templating.variables).filter(variable => variable.name !== NEW_VARIABLE_NAME);
 };
 
-export const getVariableClones = (state: StoreState = getState(), includeEmptyUuid = false): VariableModel[] => {
+export const getVariableClones = (state: StoreState = getState(), includeNewVariable = false): VariableModel[] => {
   const variables = Object.values(state.templating.variables)
-    .filter(variable => (includeEmptyUuid ? true : variable.name !== NEW_VARIABLE_NAME))
+    .filter(variable => (includeNewVariable ? true : variable.name !== NEW_VARIABLE_NAME))
     .map(variable => cloneDeep(variable));
   return variables.sort((s1, s2) => s1.index! - s2.index!);
 };

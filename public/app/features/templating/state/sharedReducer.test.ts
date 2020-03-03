@@ -127,7 +127,7 @@ describe('sharedReducer', () => {
       const initialState: VariablesState = getVariableState(3, 1, true);
 
       const payload = toVariablePayload({ name: 'Name-1', type: 'query' });
-      const emptyPayload = toVariablePayload({ name: NEW_VARIABLE_NAME, type: 'query' });
+      const newVariablePayload = toVariablePayload({ name: NEW_VARIABLE_NAME, type: 'query' });
 
       const expectedState: VariablesState = {
         'Name-0': {
@@ -160,7 +160,7 @@ describe('sharedReducer', () => {
         .givenReducer(sharedReducer, initialState)
         .whenActionIsDispatched(variableEditorUnMounted(payload))
         .thenStateShouldEqual(expectedState)
-        .whenActionIsDispatched(variableEditorUnMounted(emptyPayload))
+        .whenActionIsDispatched(variableEditorUnMounted(newVariablePayload))
         .thenStateShouldEqual(expectedState);
     });
   });
@@ -288,12 +288,10 @@ describe('sharedReducer', () => {
             skipUrlSync: false,
           },
           ['Name-11']: {
-            type: 'query',
+            ...initialQueryVariableModelState,
             name: `Name-${NEW_VARIABLE_NAME}`,
-            hide: VariableHide.dontHide,
             index: 3,
             label: `Label-${NEW_VARIABLE_NAME}`,
-            skipUrlSync: false,
           },
         });
     });

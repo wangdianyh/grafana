@@ -3,18 +3,10 @@ import { connect, MapDispatchToProps, MapStateToProps } from 'react-redux';
 import { StoreState } from 'app/types';
 import { ClickOutsideWrapper } from '@grafana/ui';
 import { VariableLink } from '../shared/VariableLink';
-import { NavigationKeys, VariableInput } from '../shared/VariableInput';
-import { commitChangesToVariable, filterOrSearchOptions, toggleOptionByHighlight } from './actions';
-import {
-  getTags,
-  moveOptionsHighlight,
-  OptionsPickerState,
-  showOptions,
-  toggleAllOptions,
-  toggleOption,
-  toggleTag,
-} from './reducer';
-import { VariableOption, VariableWithMultiSupport, VariableWithOptions } from '../../variable';
+import { VariableInput } from '../shared/VariableInput';
+import { commitChangesToVariable, filterOrSearchOptions, navigateOptions } from './actions';
+import { OptionsPickerState, showOptions, toggleAllOptions, toggleOption, toggleTag, getTags } from './reducer';
+import { VariableWithOptions, VariableWithMultiSupport, VariableOption } from '../../variable';
 import { VariableOptions } from '../shared/VariableOptions';
 import { VariablePickerProps } from '../../state/types';
 
@@ -27,12 +19,11 @@ interface ConnectedProps {
 interface DispatchProps {
   showOptions: typeof showOptions;
   commitChangesToVariable: typeof commitChangesToVariable;
-  moveOptionsHighlight: typeof moveOptionsHighlight;
-  toggleOptionByHighlight: typeof toggleOptionByHighlight;
   toggleAllOptions: typeof toggleAllOptions;
   toggleOption: typeof toggleOption;
   toggleTag: typeof toggleTag;
   filterOrSearchOptions: typeof filterOrSearchOptions;
+  navigateOptions: typeof navigateOptions;
 }
 
 type Props = OwnProps & ConnectedProps & DispatchProps;
@@ -47,31 +38,6 @@ export class OptionsPickerUnconnected extends PureComponent<Props> {
       clearOthers,
       forceSelect: false,
     });
-  };
-
-  onNavigateOptions = (key: NavigationKeys, clearOthers: boolean) => {
-    if (key === NavigationKeys.cancel) {
-      return this.onHideOptions();
-    }
-
-    if (key === NavigationKeys.select) {
-      return this.props.toggleOptionByHighlight(clearOthers);
-    }
-
-    if (key === NavigationKeys.selectAndClose) {
-      this.props.toggleOptionByHighlight(clearOthers);
-      return this.onHideOptions();
-    }
-
-    if (key === NavigationKeys.moveDown) {
-      return this.props.moveOptionsHighlight(1);
-    }
-
-    if (key === NavigationKeys.moveUp) {
-      return this.props.moveOptionsHighlight(-1);
-    }
-
-    return undefined;
   };
 
   render() {
@@ -111,7 +77,7 @@ export class OptionsPickerUnconnected extends PureComponent<Props> {
         <VariableInput
           value={picker.searchQuery}
           onChange={this.props.filterOrSearchOptions}
-          onNavigate={this.onNavigateOptions}
+          onNavigate={this.props.navigateOptions}
         />
         <VariableOptions
           values={picker.options}
@@ -132,10 +98,10 @@ const getLinkText = (variable: VariableWithOptions) => {
   const { current, options } = variable;
 
   if (!current.tags || current.tags.length === 0) {
-    if (typeof current.text === 'string') {
-      return current.text;
+    if (Array.isArray(current.text)) {
+      return current.text.join(' + ');
     }
-    return current.text.join(' + ');
+    return current.text;
   }
 
   // filer out values that are in selected tags
@@ -170,11 +136,10 @@ const mapDispatchToProps: MapDispatchToProps<DispatchProps, OwnProps> = {
   showOptions,
   commitChangesToVariable,
   filterOrSearchOptions,
-  moveOptionsHighlight,
-  toggleOptionByHighlight,
   toggleAllOptions,
   toggleOption,
   toggleTag,
+  navigateOptions,
 };
 
 const mapStateToProps: MapStateToProps<ConnectedProps, OwnProps, StoreState> = state => ({

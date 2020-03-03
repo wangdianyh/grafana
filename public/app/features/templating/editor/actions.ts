@@ -33,9 +33,9 @@ export const onEditorUpdate = (identifier: VariableIdentifier): ThunkResult<void
 
 export const onEditorAdd = (identifier: VariableIdentifier): ThunkResult<void> => {
   return async (dispatch, getState) => {
-    const emptyVarible = getVariable(NEW_VARIABLE_NAME, getState());
-    dispatch(storeNewVariable(toVariablePayload({ type: identifier.type, name: emptyVarible.name })));
-    const variableInState = getVariable(emptyVarible.name, getState());
+    const newVariable = getVariable(NEW_VARIABLE_NAME, getState());
+    dispatch(storeNewVariable(toVariablePayload({ type: identifier.type, name: newVariable.name })));
+    const variableInState = getVariable(newVariable.name, getState());
     await variableAdapters.get(variableInState.type).updateOptions(variableInState);
     dispatch(changeToEditorListMode());
   };

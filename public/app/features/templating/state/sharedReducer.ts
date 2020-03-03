@@ -82,10 +82,10 @@ export const sharedReducer = createReducer(initialVariablesState, builder =>
       }
     })
     .addCase(storeNewVariable, (state, action) => {
-      const name = action.payload.name;
-      const emptyVariable: VariableModel = cloneDeep<VariableModel>(state[NEW_VARIABLE_NAME]);
-      state[name] = cloneDeep(variableAdapters.get(action.payload.type).initialState);
-      state[name] = emptyVariable;
+      state[action.payload.name] = {
+        ...cloneDeep(variableAdapters.get(action.payload.type).initialState),
+        ...cloneDeep<VariableModel>(state[NEW_VARIABLE_NAME]),
+      };
     })
     .addCase(changeToEditorEditMode, (state, action) => {
       if (action.payload.name === NEW_VARIABLE_NAME) {
