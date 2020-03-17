@@ -5,7 +5,7 @@ go 1.13
 require (
 	cloud.google.com/go v0.55.0 // indirect
 	cloud.google.com/go/firestore v1.1.1 // indirect
-	firebase.google.com/go v3.12.0+incompatible // indirect
+	firebase.google.com/go v3.12.0+incompatible
 	github.com/BurntSushi/toml v0.3.1
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/aws/aws-sdk-go v1.25.48

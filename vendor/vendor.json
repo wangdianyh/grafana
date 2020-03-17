@@ -1,0 +1,17 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"path": "firebase.google.com/go",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "/zOVovpLZS7ZqL1rFJfc77xOut4=",
+			"path": "google.golang.org/api",
+			"revision": "73c217e228a88ee0b62541a2cbf9c23b1775e56c",
+			"revisionTime": "2020-03-01T00:09:22Z"
+		}
+	],
+	"rootPath": "github.com/grafana"
+}
