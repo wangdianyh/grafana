@@ -2,13 +2,13 @@ package notifiers
 
 import (
 	"fmt"
+	"strings"
 	//"net/url"
 
 	//"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
-	"github.com/grafana/grafana/pkg/util"
 )
 
 func init() {
@@ -42,12 +42,15 @@ type FCMNotifier struct {
 
 // NewFCMNotifier is the constructor for the FCM notifier
 func NewFCMNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
-	token := model.Settings.Get("token").MustString()
+	token := model.Settings.Get("tokens").MustString()
 	if token == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find token in settings"}
 	}
 	// split toke
-	tokens := util.SplitEmails(token)
+	var line = strings.TrimSuffix(token, "\n")
+	fmt.Printf("'%s'\n", line)
+	tokens := strings.Split(line, ";")
+	fmt.Printf("%q\n", tokens)
 	return &FCMNotifier{
 		NotifierBase: NewNotifierBase(model),
 		Token:        tokens,
@@ -79,11 +82,11 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 		fcm.log.Error("Failed get rule link", "error", err)
 		return err
 	}
-
+	fmt.Println("token: ", fcm.Token)
 	//body := fmt.Sprintf("%s - %s\n%s", evalContext.Rule.Name, ruleURL, evalContext.Rule.Message)
-	fmt.Printf("name: ", evalContext.Rule.Name)
-	fmt.Printf("url: ", ruleURL)
-	fmt.Printf("message: ", evalContext.Rule.Message)
+	fmt.Println("name: ", evalContext.Rule.Name)
+	fmt.Println("url: ", ruleURL)
+	fmt.Println("message: ", evalContext.Rule.Message)
 
 	return nil
 }
