@@ -3,7 +3,9 @@ module github.com/grafana/grafana
 go 1.13
 
 require (
-	cloud.google.com/go v0.38.0 // indirect
+	cloud.google.com/go v0.55.0 // indirect
+	cloud.google.com/go/firestore v1.1.1 // indirect
+	firebase.google.com/go v3.12.0+incompatible // indirect
 	github.com/BurntSushi/toml v0.3.1
 	github.com/VividCortex/mysqlerr v0.0.0-20170204212430-6c6b55f8796f
 	github.com/aws/aws-sdk-go v1.25.48
@@ -28,7 +30,7 @@ require (
 	github.com/go-xorm/core v0.6.2
 	github.com/go-xorm/xorm v0.7.1
 	github.com/gobwas/glob v0.2.3
-	github.com/google/go-cmp v0.3.1
+	github.com/google/go-cmp v0.4.0
 	github.com/gorilla/websocket v1.4.1
 	github.com/gosimple/slug v1.4.2
 	github.com/grafana/grafana-plugin-model v0.0.0-20190930120109-1fc953a61fb4
@@ -36,6 +38,7 @@ require (
 	github.com/hashicorp/go-hclog v0.0.0-20180709165350-ff2cf002a8dd
 	github.com/hashicorp/go-plugin v1.0.1
 	github.com/hashicorp/go-version v1.1.0
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/inconshreveable/log15 v0.0.0-20180818164646-67afb5ed74ec
 	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af
 	github.com/jung-kurt/gofpdf v1.10.1
@@ -70,14 +73,12 @@ require (
 	github.com/yudai/pp v2.0.1+incompatible // indirect
 	go.uber.org/atomic v1.5.1 // indirect
 	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550
-	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
-	golang.org/x/net v0.0.0-20190923162816-aa69164e4478
-	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/tools v0.0.0-20191213221258-04c2e8eff935 // indirect
-	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898
-	google.golang.org/genproto v0.0.0-20190502173448-54afdca5d873 // indirect
-	google.golang.org/grpc v1.23.1
+	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
+	golang.org/x/tools v0.0.0-20200317205521-2944c61d58b4 // indirect
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+	google.golang.org/grpc v1.28.0
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/ini.v1 v1.46.0
