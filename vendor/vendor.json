@@ -7,6 +7,12 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "ziZRYrmxSLgN+Wyprkexd7l4SSg=",
+			"path": "go.opencensus.io",
+			"revision": "84d38db2b42a4fc1eebad7b32616e8f4bd48bd76",
+			"revisionTime": "2020-02-18T19:36:09Z"
+		},
+		{
 			"checksumSHA1": "/zOVovpLZS7ZqL1rFJfc77xOut4=",
 			"path": "google.golang.org/api",
 			"revision": "73c217e228a88ee0b62541a2cbf9c23b1775e56c",
