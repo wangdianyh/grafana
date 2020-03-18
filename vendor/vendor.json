@@ -11,6 +11,18 @@
 			"path": "google.golang.org/api",
 			"revision": "73c217e228a88ee0b62541a2cbf9c23b1775e56c",
 			"revisionTime": "2020-03-01T00:09:22Z"
+		},
+		{
+			"checksumSHA1": "uZfzhUoYpGz8s2+KMlNzleNdAnI=",
+			"path": "google.golang.org/grpc/credentials/alts/internal/authinfo",
+			"revision": "2cd9da628aff65c0bdece69044de86dfb9ef0c9c",
+			"revisionTime": "2020-02-28T22:51:49Z"
+		},
+		{
+			"checksumSHA1": "dyoh8iIrOtw/nhYuSo+uv9AWrkM=",
+			"path": "google.golang.org/grpc/credentials/alts/internal/conn",
+			"revision": "2cd9da628aff65c0bdece69044de86dfb9ef0c9c",
+			"revisionTime": "2020-02-28T22:51:49Z"
 		}
 	],
 	"rootPath": "github.com/grafana"
