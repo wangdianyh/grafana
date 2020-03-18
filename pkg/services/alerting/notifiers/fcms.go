@@ -3,7 +3,6 @@ package notifiers
 import (
 	"context"
 	"fmt"
-	"strings"
 	//"net/url"
 
 	//"github.com/grafana/grafana/pkg/bus"
@@ -17,54 +16,51 @@ import (
 
 func init() {
 	alerting.RegisterNotifier(&alerting.NotifierPlugin{
-		Type:        "FCM",
-		Name:        "FCM",
-		Description: "Send notifications to FCM notify",
-		Factory:     NewFCMNotifier,
+		Type:        "FCMS",
+		Name:        "FCMS",
+		Description: "Send notifications to FCMS notify",
+		Factory:     NewFCMSNotifier,
 		OptionsTemplate: `
-		<h3 class="page-heading">FCM settings</h3>
-		<div class="gf-form">
-			<label class="gf-form-label width-8">
-				Tokens
-			</label>
-			<textarea rows="7" class="gf-form-input width-27" required ng-model="ctrl.model.settings.tokens"></textarea>
-		</div>
-		<div class="gf-form offset-width-8">
-			<span>You can enter multiple tokens using a ";" separator</span>
-		</div>
+		<div class="gf-form-group">
+      <h3 class="page-heading">FCMS notify settings</h3>
+      <div class="gf-form">
+        <span class="gf-form-label width-14">Token</span>
+        <input type="text" required class="gf-form-input max-width-22" ng-model="ctrl.model.settings.token" placeholder="FCM notify token key"></input>
+      </div>
+    </div>
 `,
 	})
 }
 
 // FCMNotifier is responsible for sending
 // alert notifications to FCM.
-type FCMNotifier struct {
+type FCMSNotifier struct {
 	NotifierBase
-	Token []string
+	Token string
 	log   log.Logger
 }
 
 // NewFCMNotifier is the constructor for the FCM notifier
-func NewFCMNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
-	token := model.Settings.Get("tokens").MustString()
+func NewFCMSNotifier(model *models.AlertNotification) (alerting.Notifier, error) {
+	token := model.Settings.Get("token").MustString()
 	if token == "" {
 		return nil, alerting.ValidationError{Reason: "Could not find token in settings"}
 	}
 	// split toke
-	var line = strings.TrimSuffix(token, "\n")
-	fmt.Printf("'%s'\n", line)
-	tokens := strings.Split(line, ";")
-	fmt.Printf("%q\n", tokens)
-	return &FCMNotifier{
+	//var line = strings.TrimSuffix(token, "\n")
+	//fmt.Printf("'%s'\n", line)
+	//tokens := strings.Split(line, ";")
+	//fmt.Printf("%q\n", tokens)
+	return &FCMSNotifier{
 		NotifierBase: NewNotifierBase(model),
-		Token:        tokens,
-		log:          log.New("alerting.notifier.FCM"),
+		Token:        token,
+		log:          log.New("alerting.notifier.FCMS"),
 	}, nil
 }
 
 // Notify send an alert notification to FCM
-func (fcm *FCMNotifier) Notify(evalContext *alerting.EvalContext) error {
-	fcm.log.Info("Executing FCM notification", "ruleId", evalContext.Rule.ID, "notification", fcm.Name)
+func (fcms *FCMSNotifier) Notify(evalContext *alerting.EvalContext) error {
+	fcms.log.Info("Executing FCM notification", "ruleId", evalContext.Rule.ID, "notification", fcms.Name)
 
 	var err error
 	/*
@@ -74,19 +70,19 @@ func (fcm *FCMNotifier) Notify(evalContext *alerting.EvalContext) error {
 		}
 	*/
 	if evalContext.Rule.State == models.AlertStateAlerting {
-		err = fcm.createAlert(evalContext)
+		err = fcms.createAlert(evalContext)
 	}
 	return err
 }
 
-func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
-	fcm.log.Info("Creating FCM notify", "ruleId", evalContext.Rule.ID, "notification", fcm.Name)
+func (fcms *FCMSNotifier) createAlert(evalContext *alerting.EvalContext) error {
+	fcms.log.Info("Creating FCM notify", "ruleId", evalContext.Rule.ID, "notification", fcms.Name)
 	ruleURL, err := evalContext.GetRuleURL()
 	if err != nil {
-		fcm.log.Error("Failed get rule link", "error", err)
+		fcms.log.Error("Failed get rule link", "error", err)
 		return err
 	}
-	fmt.Println("token: ", fcm.Token)
+	fmt.Println("token: ", fcms.Token)
 	//body := fmt.Sprintf("%s - %s\n%s", evalContext.Rule.Name, ruleURL, evalContext.Rule.Message)
 	fmt.Println("name: ", evalContext.Rule.Name)
 	fmt.Println("url: ", ruleURL)
@@ -106,40 +102,26 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 		fmt.Printf("error getting Messaging client: %v\n", err)
 	}
 	// This registration token comes from the client FCM SDKs.
-	registrationTokens := []string{
-		"e2bPi8R8CC4:APA91bG_7VfqGSCRalDoa8sR9Ggsng5m2FKFsW0CkocYkKpEbHQHA2Q8kSKx5ddP0ZDSN7NPRf_Cyqga1ObQveqpdxmDsYhLDe1n4vWEtpYQwgnuJAn3r2BGzPTMpUGokF-kDxRqO6vM",
-	}
+	registrationTokens := fcms.Token
 
 	// See documentation on defining a message payload.
 	// [START android_message_golang]
 	//oneHour := time.Duration(1) * time.Hour
-	message := &messaging.MulticastMessage{
+	message := &messaging.Message{
 		Notification: &messaging.Notification{
 			Title: "$GOOG up 1.43% on the day",
 			Body:  "$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.",
 		},
-		Tokens: registrationTokens,
+		Token: registrationTokens,
 	}
 	// [END android_message_golang]
-	br, err := client.SendMulticast(context.Background(), message)
+	br, err := client.Send(ctx, message)
 	if err != nil {
 		fmt.Printf("error: %v\n", err)
 	}
 
-	if br.FailureCount > 0 {
-		var failedTokens []string
-		for idx, resp := range br.Responses {
-			if !resp.Success {
-				// The order of responses corresponds to the order of the registration tokens.
-				failedTokens = append(failedTokens, registrationTokens[idx])
-			}
-		}
-
-		fmt.Printf("List of tokens that caused failures: %v\n", failedTokens)
-	}
-
 	// Response is a message ID string.
-	fmt.Println("Successfully sent message:", br.SuccessCount)
+	fmt.Println("Successfully sent message:", br)
 
 	return nil
 }
