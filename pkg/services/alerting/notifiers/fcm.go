@@ -3,9 +3,7 @@ package notifiers
 import (
 	"context"
 	"fmt"
-	//"strings"
 
-	//"github.com/grafana/grafana/pkg/bus"
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
 	"github.com/grafana/grafana/pkg/infra/log"
@@ -51,11 +49,7 @@ func NewFCMNotifier(model *models.AlertNotification) (alerting.Notifier, error) 
 		return nil, alerting.ValidationError{Reason: "Could not find token in settings"}
 	}
 	// split toke
-	//var line = strings.TrimSuffix(token, "\n")
-	//fmt.Printf("'%s'\n", line)
-	//tokens := strings.Split(line, ";")
 	tokens := util.SplitEmails(token)
-	//fmt.Printf("%q\n", tokens)
 	return &FCMNotifier{
 		NotifierBase: NewNotifierBase(model),
 		Token:        tokens,
