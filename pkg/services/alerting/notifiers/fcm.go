@@ -1,16 +1,18 @@
 package notifiers
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	//"net/url"
 
 	//"github.com/grafana/grafana/pkg/bus"
 	firebase "firebase.google.com/go"
+	"firebase.google.com/go/messaging"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
-	//"firebase.google.com/go/messaging"
+	"google.golang.org/api/option"
 )
 
 func init() {
@@ -89,6 +91,59 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 	fmt.Println("name: ", evalContext.Rule.Name)
 	fmt.Println("url: ", ruleURL)
 	fmt.Println("message: ", evalContext.Rule.Message)
+
+	opt := option.WithCredentialsFile("grafana-notification-firebase-adminsdk-mqs3o-92c0d03925.json")
+
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		fmt.Printf("error initializing app: %v\n", err)
+	}
+
+	// Obtain a messaging.Client from the App.
+	ctx := context.Background()
+	client, err := app.Messaging(ctx)
+	if err != nil {
+		fmt.Printf("error getting Messaging client: %v\n", err)
+	}
+
+	// This registration token comes from the client FCM SDKs.
+	registrationTokens := []string{
+		"e2bPi8R8CC4:APA91bG_7VfqGSCRalDoa8sR9Ggsng5m2FKFsW0CkocYkKpEbHQHA2Q8kSKx5ddP0ZDSN7NPRf_Cyqga1ObQveqpdxmDsYhLDe1n4vWEtpYQwgnuJAn3r2BGzPTMpUGokF-kDxRqO6vM",
+	}
+
+	// See documentation on defining a message payload.
+	// [START android_message_golang]
+	//oneHour := time.Duration(1) * time.Hour
+	message := &messaging.MulticastMessage{
+		Notification: &messaging.Notification{
+			Title: "$GOOG up 1.43% on the day",
+			Body:  "$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.",
+		},
+		Tokens: registrationTokens,
+	}
+	// [END android_message_golang]
+
+	// Send a message to the device corresponding to the provided
+	// registration token.
+	br, err := client.SendMulticast(context.Background(), message)
+	if err != nil {
+		fmt.Println("err: ", err)
+	}
+
+	if br.FailureCount > 0 {
+		var failedTokens []string
+		for idx, resp := range br.Responses {
+			if !resp.Success {
+				// The order of responses corresponds to the order of the registration tokens.
+				failedTokens = append(failedTokens, registrationTokens[idx])
+			}
+		}
+
+		fmt.Printf("List of tokens that caused failures: %v\n", failedTokens)
+	}
+
+	// Response is a message ID string.
+	fmt.Println("Successfully sent message:", br.SuccessCount)
 
 	return nil
 }
