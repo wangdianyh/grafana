@@ -34,6 +34,8 @@ func AddMigrations(mg *Migrator) {
 	addServerlockMigrations(mg)
 	addUserAuthTokenMigrations(mg)
 	addCacheMigration(mg)
+	// register FCM Token Table
+	addFCMTokenMigrations(mg)
 }
 
 func addMigrationLogMigrations(mg *Migrator) {
