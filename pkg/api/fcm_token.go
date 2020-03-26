@@ -1,9 +1,8 @@
 package api
 
 import (
-	//"fmt"
-	//"log"
-	//"encoding/json"
+	"fmt"
+	"log"
 	//"github.com/grafana/grafana/pkg/api/dtos"
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/models"
@@ -33,3 +32,37 @@ func addToken(c *models.ReqContext) Response {
 }
 
 // GET  /get-token-by-channel/:cId
+func getTokenByChannel(c *models.ReqContext) Response {
+	channel := c.Params(":cId")
+	query := models.GetTokenByChannelQuery{ChannelId: channel}
+	if err := bus.Dispatch(&query); err != nil {
+		return Error(500, "Failed to get Token", err)
+	}
+
+	return JSON(200, query.Result)
+}
+
+// get tokens by channel in FCM notifier
+func GetTokenByChannelForNotification(cId string) ([]*models.FcmToken, error) {
+	query := models.GetTokenByChannelQuery{ChannelId: cId}
+	if err := bus.Dispatch(&query); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return query.Result, nil
+}
+
+// get tokens by user list
+func GetTokenByUser(list []string) ([]string, error) {
+	query := models.GetTokenByUserQuery{UserId: list}
+
+	if err := bus.Dispatch(&query); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	fmt.Printf("tokenlist: %v\n", query.Result)
+
+	return query.Result, nil
+}

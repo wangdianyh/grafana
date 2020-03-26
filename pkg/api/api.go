@@ -114,6 +114,7 @@ func (hs *HTTPServer) registerRoutes() {
 		// FCM
 		apiRoute.Group("/fcm", func(fcmRoute routing.RouteRegister) {
 			fcmRoute.Post("/add-token/:tId/channel/:cId/user/:uId", Wrap(addToken))
+			fcmRoute.Get("/get-token-by-channel/:cId", Wrap(getTokenByChannel))
 		})
 
 		// user (signed in)

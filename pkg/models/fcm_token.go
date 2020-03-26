@@ -34,3 +34,12 @@ type AddTokenCommand struct {
 
 // ---------------------
 // QUERIES
+type GetTokenByChannelQuery struct {
+	ChannelId string
+	Result    []*FcmToken
+}
+
+type GetTokenByUserQuery struct {
+	UserId []string
+	Result []string
+}

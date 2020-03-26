@@ -6,6 +6,7 @@ import (
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
+	"github.com/grafana/grafana/pkg/api"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -62,7 +63,7 @@ func NewFCMNotifier(model *models.AlertNotification) (alerting.Notifier, error) 
 func (fcm *FCMNotifier) Notify(evalContext *alerting.EvalContext) error {
 	fmt.Println("------------------------ FCM start to excute ----------------------")
 	fcm.log.Info("Executing FCM notification", "ruleId", evalContext.Rule.ID, "notification", fcm.Name)
-	//fmt.Printf("message: %v\v", evalContext.Rule.Message)
+
 	var err error
 	switch evalContext.Rule.State {
 	case models.AlertStateAlerting:
@@ -93,8 +94,16 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 		return err
 	}
 
+	//call GetTokenByUser to get tokens from db
+	tokenList, errApi := api.GetTokenByUser(fcm.Token)
+	if errApi != nil {
+		fmt.Printf("error getting token list: %v\n", errApi)
+		return errApi
+	}
+	fmt.Printf("token List:%v\n", tokenList)
+
 	// This registration token comes from the client FCM SDKs.
-	registrationTokens := fcm.Token
+	registrationTokens := tokenList
 
 	// See documentation on defining a message payload.
 	// [START android_message_golang]
