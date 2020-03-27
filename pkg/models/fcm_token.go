@@ -7,16 +7,15 @@ import (
 
 // Typed errors
 var (
-	ErrFCMNotFound  = errors.New("FCM not found")
-	FCMFieldMissing = errors.New("missing token or channel Id")
+	FCMFieldMissing    = errors.New("missing token or user Id")
+	ErrTokenRegistered = errors.New("this token is already regstered...")
 )
 
 // FCM token model
 type FcmToken struct {
-	Id        int64
-	Token     string
-	ChannelId string
-	UserId    string
+	Id     int64
+	Token  string
+	UserId string
 
 	Created time.Time `json:"created"`
 	Updated time.Time `json:"updated"`
@@ -25,19 +24,14 @@ type FcmToken struct {
 // ---------------------
 // COMMANDS
 type AddTokenCommand struct {
-	Token     string
-	ChannelId string
-	UserId    string
+	Token  string
+	UserId string
 
 	Result FcmToken `json:"-"`
 }
 
 // ---------------------
 // QUERIES
-type GetTokenByChannelQuery struct {
-	ChannelId string
-	Result    []*FcmToken
-}
 
 type GetTokenByUserQuery struct {
 	UserId []string

@@ -1,37 +1,42 @@
 package sqlstore
 
 import (
-	//"fmt"
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/models"
 	"log"
-	//"strconv"
 	"strings"
 	"time"
 )
 
 func init() {
 	bus.AddHandler("sql", SaveToken)
-	bus.AddHandler("sql", LoadTokenByChannel)
 	bus.AddHandler("sql", LoadTokenByUser)
 }
 func SaveToken(cmd *models.AddTokenCommand) error {
-	if cmd.Token == "" || cmd.ChannelId == "" {
+	if cmd.Token == "" || cmd.UserId == "" {
 		return models.FCMFieldMissing
 	}
 
 	return inTransaction(func(sess *DBSession) error {
+
+		isRegistered, errR := isTokenRegistered(cmd.Token, sess)
+		if errR != nil {
+			return errR
+		} else if isRegistered {
+			return models.ErrTokenRegistered
+		}
+
 		fcmToken := models.FcmToken{
-			Token:     cmd.Token,
-			ChannelId: cmd.ChannelId,
-			UserId:    cmd.UserId,
-			Created:   time.Now(),
-			Updated:   time.Now(),
+			Token:   cmd.Token,
+			UserId:  cmd.UserId,
+			Created: time.Now(),
+			Updated: time.Now(),
 		}
 
 		_, err := sess.Insert(&fcmToken)
 		if err != nil {
 			log.Fatal(err)
+			return err
 		}
 
 		cmd.Result = fcmToken
@@ -40,16 +45,21 @@ func SaveToken(cmd *models.AddTokenCommand) error {
 	})
 }
 
-func LoadTokenByChannel(query *models.GetTokenByChannelQuery) error {
-	var tokens []*models.FcmToken
+// check if token is registered already
+func isTokenRegistered(token string, sess *DBSession) (bool, error) {
+	var fcmToken models.FcmToken
+	registered, err := sess.Where("token=?", token).Get(&fcmToken)
 
-	err := x.SQL("select * from fcm_token where channel_id=" + query.ChannelId).Find(&tokens)
 	if err != nil {
-		return err
+		log.Fatal(err)
+		return false, nil
 	}
 
-	query.Result = tokens
-	return nil
+	if registered {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func LoadTokenByUser(query *models.GetTokenByUserQuery) error {
