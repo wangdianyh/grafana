@@ -10,12 +10,12 @@ import (
 // POST /add-token/
 func (hs *HTTPServer) AddToken(c *models.ReqContext, cmd models.AddTokenCommand) Response {
 	if err := hs.Bus.Dispatch(&cmd); err != nil {
-		// if is ErrTokenRegistered err
-		if err == models.ErrTokenRegistered {
-			return Success("this token is already regstered...updated token last seen time in db...")
-		}
 
 		return Error(500, "Failed to create Token", err)
+	}
+
+	if cmd.Result.Id == 0 {
+		return Success("Token last seen time updated...")
 	}
 
 	return Success("Token Added!")

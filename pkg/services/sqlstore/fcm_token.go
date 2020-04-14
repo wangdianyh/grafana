@@ -23,13 +23,15 @@ func SaveToken(cmd *models.AddTokenCommand) error {
 		isRegistered, errR := isTokenRegistered(cmd.Token, sess)
 		if errR != nil {
 			return errR
+
 		} else if isRegistered {
+			// update token last login time in db
 			errU := updateTokenLoginTime(cmd.Token, sess)
 			if errU != nil {
 				return errU
 			}
 
-			return models.ErrTokenRegistered
+			return nil
 		}
 
 		fcmToken := models.FcmToken{
@@ -47,7 +49,7 @@ func SaveToken(cmd *models.AddTokenCommand) error {
 
 		cmd.Result = fcmToken
 
-		return err
+		return nil
 	})
 }
 
