@@ -65,7 +65,7 @@ func isTokenRegistered(token string, sess *DBSession) (bool, error) {
 
 // get all tokens registered in db
 func LoadToken(query *models.GetTokeQuery) error {
-	sqlStr := "select id, token, user_id from fcm_token"
+	sqlStr := "select * from fcm_token"
 	var tokens []*models.FcmToken
 
 	err := x.SQL(sqlStr).Find(&tokens)

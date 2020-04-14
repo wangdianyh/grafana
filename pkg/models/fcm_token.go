@@ -39,5 +39,5 @@ type GetTokenByUserQuery struct {
 }
 
 type GetTokeQuery struct {
-	Result []*FcmToken
+	Result []*FcmToken `json:"-"`
 }
