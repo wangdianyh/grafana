@@ -172,7 +172,7 @@ export function grafanaAppDirective(
       }
 
       // tooltip removal fix
-      // manage page classes
+      // manage page classesƒ
       let pageClass: string;
       scope.$on('$routeChangeSuccess', (evt: any, data: any) => {
         if (pageClass) {

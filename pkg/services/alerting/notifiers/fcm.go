@@ -6,7 +6,7 @@ import (
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
-	"github.com/grafana/grafana/pkg/api"
+	//"github.com/grafana/grafana/pkg/api"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -76,6 +76,14 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 	fmt.Println("------------------------ FCM start from here ----------------------")
 	fcm.log.Info("Creating FCM notify", "ruleId", evalContext.Rule.ID, "notification", fcm.Name)
 
+	// get alert dashboard URL
+	ruleURL, errR := evalContext.GetRuleURL()
+	if errR != nil {
+		fcm.log.Error("failed getting the rule URK", "error", errR)
+		return errR
+	}
+	fmt.Printf("rule url: %v\n", ruleURL)
+
 	//opt := option.WithCredentialsFile(file)
 	opt := option.WithCredentialsJSON([]byte(notifiers_sdk.FB_sdk))
 
@@ -95,15 +103,18 @@ func (fcm *FCMNotifier) createAlert(evalContext *alerting.EvalContext) error {
 	}
 
 	//call GetTokenByUser to get tokens from db
-	tokenList, errApi := api.GetTokenByUser(fcm.Token)
-	if errApi != nil {
-		fmt.Printf("error getting token list: %v\n", errApi)
-		return errApi
-	}
-	fmt.Printf("token List:%v\n", tokenList)
+	/*
+		tokenList, errApi := api.GetTokenByUser(fcm.Token)
+		if errApi != nil {
+			fmt.Printf("error getting token list: %v\n", errApi)
+			return errApi
+		}
+		fmt.Printf("token List:%v\n", tokenList)
+	*/
 
 	// This registration token comes from the client FCM SDKs.
-	registrationTokens := tokenList
+	//registrationTokens := tokenList
+	registrationTokens := fcm.Token
 
 	// See documentation on defining a message payload.
 	// [START android_message_golang]

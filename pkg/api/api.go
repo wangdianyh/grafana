@@ -109,6 +109,9 @@ func (hs *HTTPServer) registerRoutes() {
 	// api renew session based on cookie
 	r.Get("/api/login/ping", quota("session"), Wrap(hs.LoginAPIPing))
 
+	// fcm save device token
+	r.Post("/api/fcm/add-token-easy", bind(models.AddTokenCommand{}), Wrap(hs.AddToken))
+
 	// authed api
 	r.Group("/api", func(apiRoute routing.RouteRegister) {
 		// FCM
