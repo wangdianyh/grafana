@@ -24,6 +24,11 @@ func SaveToken(cmd *models.AddTokenCommand) error {
 		if errR != nil {
 			return errR
 		} else if isRegistered {
+			errU := updateTokenLoginTime(cmd.Token, sess)
+			if errU != nil {
+				return errU
+			}
+
 			return models.ErrTokenRegistered
 		}
 
@@ -44,6 +49,20 @@ func SaveToken(cmd *models.AddTokenCommand) error {
 
 		return err
 	})
+}
+
+func updateTokenLoginTime(token string, sess *DBSession) error {
+	update := models.FcmToken{
+		Token:   token,
+		Updated: time.Now(),
+	}
+
+	_, err := sess.Where("token=?", token).Update(&update)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // check if token is registered already
