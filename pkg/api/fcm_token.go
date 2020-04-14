@@ -16,6 +16,17 @@ func (hs *HTTPServer) AddToken(c *models.ReqContext, cmd models.AddTokenCommand)
 	return Success("Token Added!")
 }
 
+// GET /api/fcm/get-token-easy
+func GetToken(c *models.ReqContext) Response {
+	query := models.GetTokeQuery{}
+
+	if err := bus.Dispatch(&query); err != nil {
+		return Error(500, "Fail get get token", err)
+	}
+
+	return JSON(200, query.Result)
+}
+
 // get tokens by user list
 func GetTokenByUser(list []string) ([]string, error) {
 	query := models.GetTokenByUserQuery{UserId: list}

@@ -37,3 +37,7 @@ type GetTokenByUserQuery struct {
 	UserId []string
 	Result []string
 }
+
+type GetTokeQuery struct {
+	Result []*FcmToken
+}

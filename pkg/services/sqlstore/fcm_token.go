@@ -11,6 +11,7 @@ import (
 func init() {
 	bus.AddHandler("sql", SaveToken)
 	bus.AddHandler("sql", LoadTokenByUser)
+	bus.AddHandler("sql", LoadToken)
 }
 func SaveToken(cmd *models.AddTokenCommand) error {
 	if cmd.Token == "" || cmd.UserId == "" {
@@ -60,6 +61,20 @@ func isTokenRegistered(token string, sess *DBSession) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// get all tokens registered in db
+func LoadToken(query *models.GetTokeQuery) error {
+	sqlStr := "select id, token, user_id from fcm_token"
+	var tokens []*models.FcmToken
+
+	err := x.SQL(sqlStr).Find(&tokens)
+	if err != nil {
+		return err
+	}
+	query.Result = tokens
+
+	return nil
 }
 
 func LoadTokenByUser(query *models.GetTokenByUserQuery) error {

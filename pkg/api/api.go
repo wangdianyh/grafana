@@ -111,6 +111,7 @@ func (hs *HTTPServer) registerRoutes() {
 
 	// fcm save device token
 	r.Post("/api/fcm/add-token-easy", bind(models.AddTokenCommand{}), Wrap(hs.AddToken))
+	r.Get("/api/fcm/get-token-easy", Wrap(GetToken))
 
 	// authed api
 	r.Group("/api", func(apiRoute routing.RouteRegister) {
