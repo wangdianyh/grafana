@@ -30,6 +30,10 @@ type AddTokenCommand struct {
 	Result FcmToken `json:"-"`
 }
 
+type DeleteExpiredTokenCommand struct {
+	Result []*FcmToken `json:"-"`
+}
+
 // ---------------------
 // QUERIES
 

@@ -1,7 +1,7 @@
 package sqlstore
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/models"
 	"log"
@@ -14,6 +14,7 @@ func init() {
 	bus.AddHandler("sql", LoadTokenByUser)
 	bus.AddHandler("sql", LoadToken)
 	bus.AddHandler("sql", LoadExpiredToken)
+	bus.AddHandler("sql", DeleteExpiredToken)
 }
 func SaveToken(cmd *models.AddTokenCommand) error {
 	if cmd.Token == "" || cmd.UserId == "" {
@@ -111,8 +112,6 @@ func LoadExpiredToken(query *models.GetExpiredTokenQuery) error {
 		return err
 	}
 
-	fmt.Printf("query result ==============: %v\n", result)
-
 	query.Result = result
 
 	return nil
@@ -142,4 +141,17 @@ func LoadTokenByUser(query *models.GetTokenByUserQuery) error {
 	query.Result = tokenList
 
 	return nil
+}
+
+// delete all expired token
+func DeleteExpiredToken(cmd *models.DeleteExpiredTokenCommand) error {
+	return inTransaction(func(sess *DBSession) error {
+		sqlStr := "delete from fcm_token where (julianday('now') - julianday(updated) > 1)"
+		_, err := sess.Exec(sqlStr)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
