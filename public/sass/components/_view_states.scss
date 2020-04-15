@@ -70,13 +70,18 @@
 }
 
 .view-mode--kiosk {
-  @extend .view-mode--tv;
-
+  /*@extend .view-mode--tv;
+  
   .sidemenu,
   .navbar {
     display: none;
-  }
+  }*/
+  @extend .view-mode--inactive;
 
+  .navbar-buttons {
+    display: none;
+  }
+  /*
   .scroll-canvas--dashboard {
     height: 100%;
   }
@@ -84,4 +89,5 @@
   .submenu-controls {
     display: none;
   }
+  */
 }

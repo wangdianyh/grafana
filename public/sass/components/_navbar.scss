@@ -122,6 +122,10 @@ i.navbar-page-btn__search {
   &--zoom {
     margin-right: 0;
   }
+
+  @include media-breakpoint-up($mobile-menu-breakpoint) {
+    display: none;
+  }
 }
 
 .navbar__spacer {

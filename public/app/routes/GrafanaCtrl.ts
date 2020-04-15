@@ -192,7 +192,11 @@ export function grafanaAppDirective(
         $('#tooltip, .tooltip').remove();
 
         // check for kiosk url param
-        setViewModeBodyClass(body, data.params.kiosk);
+        //setViewModeBodyClass(body, data.params.kiosk);
+
+        const mql = window.matchMedia('(max-width: 480px)');
+        const mode = mql.matches ? true : data.params.kiosk;
+        setViewModeBodyClass(body, mode);
 
         // close all drops
         for (const drop of Drop.drops) {
