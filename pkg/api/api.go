@@ -118,6 +118,7 @@ func (hs *HTTPServer) registerRoutes() {
 		// FCM
 		apiRoute.Group("/fcm", func(fcmRoute routing.RouteRegister) {
 			fcmRoute.Post("/add-token", bind(models.AddTokenCommand{}), Wrap(hs.AddToken))
+			fcmRoute.Get("/token-expired", Wrap(GetExpiredToken))
 		})
 
 		// user (signed in)

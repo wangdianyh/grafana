@@ -41,3 +41,9 @@ type GetTokenByUserQuery struct {
 type GetTokeQuery struct {
 	Result []*FcmToken `json:"-"`
 }
+
+type GetExpiredTokenQuery struct {
+	CurrentTime time.Time
+
+	Result []*FcmToken `json:"-"`
+}

@@ -26,7 +26,18 @@ func GetToken(c *models.ReqContext) Response {
 	query := models.GetTokeQuery{}
 
 	if err := bus.Dispatch(&query); err != nil {
-		return Error(500, "Fail get get token", err)
+		return Error(500, "Fail get token", err)
+	}
+
+	return JSON(200, query.Result)
+}
+
+// GET /api/fcm//token-expired
+func GetExpiredToken(c *models.ReqContext) Response {
+	query := models.GetExpiredTokenQuery{}
+
+	if err := bus.Dispatch(&query); err != nil {
+		return Error(500, "Fail get expired token", err)
 	}
 
 	return JSON(200, query.Result)

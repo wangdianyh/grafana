@@ -1,6 +1,7 @@
 package sqlstore
 
 import (
+	"fmt"
 	"github.com/grafana/grafana/pkg/bus"
 	"github.com/grafana/grafana/pkg/models"
 	"log"
@@ -12,6 +13,7 @@ func init() {
 	bus.AddHandler("sql", SaveToken)
 	bus.AddHandler("sql", LoadTokenByUser)
 	bus.AddHandler("sql", LoadToken)
+	bus.AddHandler("sql", LoadExpiredToken)
 }
 func SaveToken(cmd *models.AddTokenCommand) error {
 	if cmd.Token == "" || cmd.UserId == "" {
@@ -94,6 +96,24 @@ func LoadToken(query *models.GetTokeQuery) error {
 		return err
 	}
 	query.Result = tokens
+
+	return nil
+}
+
+// get expired token if user did not login after 183 days
+func LoadExpiredToken(query *models.GetExpiredTokenQuery) error {
+	//now := time.Now()
+	var result []*models.FcmToken
+	sqlStr := "SELECT * FROM  fcm_token WHERE julianday('now') - julianday(updated) > 1"
+	err := x.SQL(sqlStr).Find(&result)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	fmt.Printf("query result ==============: %v\n", result)
+
+	query.Result = result
 
 	return nil
 }
